@@ -1,0 +1,329 @@
+databaseChangeLog:
+- changeSet:
+    id: 1617811910118-1
+    author: antongoncharov (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: ChoicePK
+            name: uuid
+            type: BINARY
+        - column:
+            name: created_at
+            type: TIMESTAMP
+        - column:
+            name: last_modified_at
+            type: TIMESTAMP
+        - column:
+            name: version
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BOOLEAN
+        - column:
+            constraints:
+              nullable: false
+            name: pos
+            type: INT
+        - column:
+            name: text
+            type: VARCHAR(255)
+        - column:
+            name: question_uuid
+            type: BINARY
+        tableName: Choice
+- changeSet:
+    id: 1617811910118-2
+    author: antongoncharov (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: ChoiceResponsePK
+            name: uuid
+            type: BINARY
+        - column:
+            name: created_at
+            type: TIMESTAMP
+        - column:
+            name: last_modified_at
+            type: TIMESTAMP
+        - column:
+            name: version
+            type: BIGINT
+        - column:
+            name: choice_uuid
+            type: BINARY
+        - column:
+            name: question_uuid
+            type: BINARY
+        - column:
+            name: surveyResponse_uuid
+            type: BINARY
+        tableName: ChoiceResponse
+- changeSet:
+    id: 1617811910118-3
+    author: antongoncharov (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: QuestionPK
+            name: uuid
+            type: BINARY
+        - column:
+            name: created_at
+            type: TIMESTAMP
+        - column:
+            name: last_modified_at
+            type: TIMESTAMP
+        - column:
+            name: version
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BOOLEAN
+        - column:
+            constraints:
+              nullable: false
+            name: multiselect
+            type: BOOLEAN
+        - column:
+            constraints:
+              nullable: false
+            name: pos
+            type: INT
+        - column:
+            name: text
+            type: VARCHAR(255)
+        - column:
+            name: questions_uuid
+            type: BINARY
+        tableName: Question
+- changeSet:
+    id: 1617811910118-4
+    author: antongoncharov (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: SurveyPK
+            name: uuid
+            type: BINARY
+        - column:
+            name: created_at
+            type: TIMESTAMP
+        - column:
+            name: last_modified_at
+            type: TIMESTAMP
+        - column:
+            name: version
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BOOLEAN
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: user_uuid
+            type: BINARY
+        tableName: Survey
+- changeSet:
+    id: 1617811910118-5
+    author: antongoncharov (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: SurveyResponsePK
+            name: uuid
+            type: BINARY
+        - column:
+            name: created_at
+            type: TIMESTAMP
+        - column:
+            name: last_modified_at
+            type: TIMESTAMP
+        - column:
+            name: version
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: submitted
+            type: BOOLEAN
+        - column:
+            name: submittedAt
+            type: TIMESTAMP
+        - column:
+            name: survey_uuid
+            type: BINARY
+        - column:
+            name: user_uuid
+            type: BINARY
+        tableName: SurveyResponse
+- changeSet:
+    id: 1617811910118-6
+    author: antongoncharov (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: UserPK
+            name: uuid
+            type: BINARY
+        - column:
+            name: created_at
+            type: TIMESTAMP
+        - column:
+            name: last_modified_at
+            type: TIMESTAMP
+        - column:
+            name: version
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BOOLEAN
+        - column:
+            name: email
+            type: VARCHAR(255)
+        - column:
+            name: name
+            type: VARCHAR(255)
+        - column:
+            name: password
+            type: VARCHAR(255)
+        tableName: User
+- changeSet:
+    id: 1617811910118-7
+    author: antongoncharov (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: questions_uuid
+        baseTableName: Question
+        constraintName: FK19sg5xsti0kto6damko8imjtu
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: uuid
+        referencedTableName: Survey
+        validate: true
+- changeSet:
+    id: 1617811910118-8
+    author: antongoncharov (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: choice_uuid
+        baseTableName: ChoiceResponse
+        constraintName: FK21u39dp22720ddq4ml4fyi2cl
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: uuid
+        referencedTableName: Choice
+        validate: true
+- changeSet:
+    id: 1617811910118-9
+    author: antongoncharov (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_uuid
+        baseTableName: Survey
+        constraintName: FK2js5d8ybrp4r6dyuxkipv1hpm
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: uuid
+        referencedTableName: User
+        validate: true
+- changeSet:
+    id: 1617811910118-10
+    author: antongoncharov (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: surveyResponse_uuid
+        baseTableName: ChoiceResponse
+        constraintName: FKa3srmdrv8bcrokuqo7qwioa25
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: uuid
+        referencedTableName: SurveyResponse
+        validate: true
+- changeSet:
+    id: 1617811910118-11
+    author: antongoncharov (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_uuid
+        baseTableName: SurveyResponse
+        constraintName: FKbra5t0fgl2d3qlujdi75ca17y
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: uuid
+        referencedTableName: User
+        validate: true
+- changeSet:
+    id: 1617811910118-12
+    author: antongoncharov (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: survey_uuid
+        baseTableName: SurveyResponse
+        constraintName: FKgxmkycq26o4yfdj7p2in66iul
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: uuid
+        referencedTableName: Survey
+        validate: true
+- changeSet:
+    id: 1617811910118-13
+    author: antongoncharov (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_uuid
+        baseTableName: ChoiceResponse
+        constraintName: FKncx6mx3opdibsh2wydj8gg8rd
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: uuid
+        referencedTableName: Question
+        validate: true
+- changeSet:
+    id: 1617811910118-14
+    author: antongoncharov (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_uuid
+        baseTableName: Choice
+        constraintName: FKr13q5f8j54u7mxro8ynkoo73t
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: uuid
+        referencedTableName: Question
+        validate: true
+
