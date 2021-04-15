@@ -1,32 +1,30 @@
 <template>
   <div class="container-fluid" id="app">
-    <div class="row">
-      <div class="col-md-12">
-        <navbar/>
-        <div class="row">
-          <div class="col-md-2">
-            <sidebar/>
-          </div>
-          <div class="col-md-8">
-            <survey-list/>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div v-if="alert.message" :class="`alert ${alert.type}`">{{alert.message}}</div>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Navbar from './components/Navbar.vue'
-import Sidebar from './components/Sidebar.vue'
-import SurveyList from './components/SurveyList.vue'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'App',
-  components: {
-    Navbar,
-    Sidebar,
-    SurveyList
+  computed: {
+    ...mapState({
+      alert: state => state.alert
+    })
+  },
+  methods: {
+    ...mapActions({
+      clearAlert: 'alert/clear'
+    })
+  },
+  watch: {
+    $route() {
+      // clear alert on location change
+      this.clearAlert();
+    }
   }
 }
 </script>

@@ -19,7 +19,7 @@ export default {
 <style scoped>
 .survey-card {
   width: 100%;
-  height: 100px;
+  height: 150px;
 
   border: 1px solid #dee2e6;
   border-radius: 7px;

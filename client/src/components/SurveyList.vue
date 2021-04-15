@@ -51,6 +51,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import SurveyCard from "@/components/SurveyCard";
 
 export default {
@@ -58,6 +59,11 @@ export default {
   components: {SurveyCard},
   props: {
     msg: String
+  },
+  mounted() {
+    axios.get(process.env.VUE_APP_BACKEND_API_URL + "/surveys").then((result) => {
+      console.log(result);
+    })
   }
 }
 </script>

@@ -20,6 +20,7 @@ import org.springframework.web.filter.CorsFilter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+import org.springframework.web.cors.CorsConfigurationSource
 import javax.servlet.http.HttpServletRequest
 
 @EnableWebSecurity
@@ -85,15 +86,16 @@ class SecurityConfig(
     }
 
     @Bean
-    fun corsFilter(): CorsFilter? {
+    protected fun corsConfigurationSource(): CorsConfigurationSource? {
         val source = UrlBasedCorsConfigurationSource()
         val config = CorsConfiguration()
-        config.allowCredentials = true
+//        config.allowCredentials = true
         config.addAllowedOrigin("*")
         config.addAllowedHeader("*")
+        config.addExposedHeader("*")
         config.addAllowedMethod("*")
         source.registerCorsConfiguration("/**", config)
-        return CorsFilter(source)
+        return source
     }
 
 }

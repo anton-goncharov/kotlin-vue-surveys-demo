@@ -55,12 +55,13 @@ class AuthController (
             val authenticate: Authentication = authenticationManager
                 .authenticate(UsernamePasswordAuthenticationToken(request.email, request.password))
             val principal = authenticate.getPrincipal()
+            val user = userRepository.findByEmail(request.email);
             ResponseEntity.ok()
                 .header(
                     HttpHeaders.AUTHORIZATION,
                     jwtTokenUtil.generateToken(principal as UserDetails)
                 )
-                .build()
+                .body(user)
         } catch (ex: BadCredentialsException) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }

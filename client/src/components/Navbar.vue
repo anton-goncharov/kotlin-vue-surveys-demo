@@ -32,7 +32,7 @@
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink2">
             <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a> <a class="dropdown-item" href="#">Something else here</a>
             <div class="dropdown-divider">
-            </div> <a class="dropdown-item" href="#">Logout</a>
+            </div> <a class="dropdown-item" href="#" v-on:click="logout()">Logout</a>
           </div>
         </li>
       </ul>
@@ -41,10 +41,16 @@
 </template>
 
 <script>
+
+import {mapActions} from "vuex";
+
 export default {
   name: 'Navbar',
   props: {
     msg: String
+  },
+  methods: {
+    ...mapActions('account', ['logout'])
   }
 }
 </script>
