@@ -1,7 +1,14 @@
 <template>
-  <a href="#">
-    <div class="survey-card">
-      <span class="badge badge-default">{{ name }}</span>
+  <a :href="`/surveys/${uuid}`" class="nounderline">
+    <div class="survey-card bg-dark">
+      <div class="h-75 p-3">
+        <h4 class="text-light">{{ title }}</h4>
+      </div>
+      <div class="h-25">
+        <div class="col-md-12">
+          <a :href="`/surveys/${uuid}/stats`" class="badge badge-warning align-text-bottom">Stats</a>
+        </div>
+      </div>
     </div>
   </a>
 </template>
@@ -10,7 +17,8 @@
 export default {
   name: 'SurveyCard',
   props: {
-    name: String
+    title: String,
+    uuid: String
   }
 }
 </script>
@@ -23,5 +31,9 @@ export default {
 
   border: 1px solid #dee2e6;
   border-radius: 7px;
+}
+
+.nounderline {
+  text-decoration: none !important
 }
 </style>

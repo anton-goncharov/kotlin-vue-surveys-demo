@@ -3,10 +3,10 @@
     of the currently logged in user from local storage. If the user isn't logged in an empty object is returned.
  */
 export function authHeader() {
-    let user = JSON.parse(localStorage.getItem('user'));
-
-    if (user && user.token) {
-        return { 'Authorization': 'Bearer ' + user.token };
+    let token = localStorage.getItem('authToken');
+    console.log("authToken", token); // TODO delete before commit
+    if (token) {
+        return { 'Authorization': 'Bearer ' + token };
     } else {
         return {};
     }

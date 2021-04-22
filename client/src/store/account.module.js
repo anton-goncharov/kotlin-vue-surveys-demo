@@ -31,7 +31,10 @@ const actions = {
     logout({ commit }) {
         userService.logout();
         commit('logout');
-        router.push('/login');
+        router.push('/login').catch(
+            // Ignore the vuex err regarding navigating to the page they are already on
+            err => { if (err.name !== 'NavigationDuplicated') { console.error(err); }}
+        );
     },
     register({ dispatch, commit }, user) {
         commit('registerRequest', user);
