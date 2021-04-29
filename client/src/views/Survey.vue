@@ -22,73 +22,43 @@
       <!-- Question -->
       <!-- TODO a control to reorder questions -->
       <div v-for="question in this.surveyQuestions" v-bind:key="question.uuid" class="survey-question-block mt-5">
-      <!-- TODO bind from the survey questions store -->
-        <div class="row">
-          <div class="col-md-8">
-            <h5>{{ question.text }}</h5>
+        <div v-if="!editing[question.uuid]">
+          <div class="row">
+            <div class="col-md-8">
+              <h5>{{ question.text }}</h5>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-link" type="button" v-on:click="$set(editing, question.uuid, true)">Edit</button>
+              <button class="btn btn-link text-danger" type="button" v-on:click="deleteQuestion(question.uuid)">Delete</button>
+            </div>
           </div>
-          <div class="col-md-4">
-            <button class="btn btn-link" type="button">Edit</button>
-            <button class="btn btn-link text-danger" type="button" v-on:click="deleteQuestion(question.uuid)">Delete</button>
+          <div v-for="choice in question.choices" v-bind:key="choice.uuid" class="form-check">
+            <!-- Multiselect Question (checkboxes) -->
+            <input v-if="question.multiselect === true" :id="choice.uuid" class="form-check-input" type="checkbox" value="">
+            <!-- Otherwise: Select-One Question (radio buttons) -->
+            <input v-else :id="choice.uuid" :name="question.uuid" class="form-check-input" type="radio" value="">
+            <label :for="choice.uuid" class="form-check-label">
+              {{ choice.text }}
+            </label>
           </div>
         </div>
-        <div v-for="choice in question.choices" v-bind:key="choice.uuid" class="form-check">
-          <!-- Multiselect Question (checkboxes) -->
-          <input v-if="question.multiselect === true" :id="choice.uuid" class="form-check-input" type="checkbox" value="">
-          <!-- Otherwise: Select-One Question (radio buttons) -->
-          <input v-else :id="choice.uuid" :name="question.uuid" class="form-check-input" type="radio" value="">
-          <label :for="choice.uuid" class="form-check-label">
-            {{ choice.text }}
-          </label>
-        </div>
+        <survey-question-edit v-else
+                              :question-supplier="() => question"
+                              @cancelled="cancelEditingQuestion"
+                              @saved="saveQuestion" />
       </div>
 
-      <!-- TODO extract to a new component? -->
+      <!-- Add Question Form -->
       <div class="row">
-        <button v-if="!isAddingNewQuestion" class="btn btn-link mt-4" type="button" v-on:click="addQuestion">Add Question</button>
-        <div v-else class="col-12 mt-4">
-          <div class="col-12 mt-3">
-            <input v-model="newQuestion.text" class="form-control form-control-lg" placeholder="Enter new question here" type="text">
-          </div>
-          <!-- multiselect? -->
-          <div class="col-12 mt-3">
-            <div class="form-check">
-              <input id="defaultCheck1"
-                     v-model="newQuestion.multiselect"
-                     :disabled="newQuestion.choices.length < 2"
-                     class="form-check-input"
-                     type="checkbox">
-              <label class="form-check-label" for="defaultCheck1">
-                User can select multiple choices
-              </label>
-            </div>
-          </div>
-          <!-- choices? -->
-          <div v-for="(choice,index) in this.newQuestion.choices" v-bind:key="`choice-${index}`" class="col-12 mt-3">
-            <label class="sr-only" for="inlineFormInputGroup">Username</label>
-            <div class="input-group mb-2">
-              <div class="input-group-prepend">
-                <div class="input-group-text">{{ index+1 }}</div>
-              </div>
-              <input id="inlineFormInputGroup" v-model="choice.text" class="form-control" placeholder="Enter choice text here" type="text">
-              <div class="input-group-append">
-                <div class="input-group-text bg-white border border-danger" style="z-index: 3">
-                  <button aria-label="Close" class="close" type="button" v-on:click="deleteQuestionChoice(index)">
-                    <span aria-hidden="true" class="text-danger">&times;</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div><i class="bi bi-trash"></i>
-
-          <div class="col-12 mt-3">
-            <button class="btn btn-link btn-sm" v-on:click="addQuestionChoice">Add Choice</button>
-          </div>
-          <div class="col-12 mt-2">
-            <button class="btn btn-link btn-sm" v-on:click="saveQuestion">Save</button>
-            <button class="btn btn-link btn-sm text-danger" v-on:click="isAddingNewQuestion = false">Cancel</button>
-          </div>
-        </div>
+        <button v-if="!isAddingNewQuestion"
+                class="btn btn-link mt-4" type="button"
+                v-on:click="isAddingNewQuestion = true">
+          Add Question
+        </button>
+        <survey-question-edit v-else
+                              :question-supplier="newQuestionSupplier"
+                              @cancelled="cancelNewQuestion"
+                              @saved="saveQuestion" />
       </div>
 
       <!-- Survey Controls -->
@@ -98,10 +68,11 @@
         <button class="btn btn-outline-danger" type="button" v-on:click="deleteSurvey()">Delete Survey</button>
       </div>
     </div>
+
+    <!-- Loading Spinner   -->
     <div v-else class="col-lg-6 col-md-8 col-sm-10">
       <img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
     </div>
-
 
     <div class="col">
     </div>
@@ -111,15 +82,15 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import {router} from "@/router";
+import SurveyQuestionEdit from "@/components/SurveyQuestionEdit";
 
 export default {
   name: 'Survey',
+  components: {SurveyQuestionEdit},
   data: function() {
     return {
       isAddingNewQuestion: false,
-      newQuestion: {
-        choices: []
-      }
+      editing: {}
     }
   },
   props: {
@@ -154,13 +125,14 @@ export default {
     ...mapActions('surveyQuestions', {
       initSurveyQuestions: 'init',
       createSurveyQuestionApi: 'create',
+      updateSurveyQuestionApi: 'update',
       deleteSurveyQuestionApi: 'deleteById'
     }),
     submitSurveyResponse() {
-      router.back();
+      router.back(); // TODO implement
     },
     deleteSurvey() {
-      router.back();
+      router.back(); // TODO implement
     },
     close() {
       router.back(); // TODO or is it better to router.push('/') ?
@@ -170,28 +142,21 @@ export default {
     },
 
     // QUESTIONS
-    addQuestion() {
-      this.isAddingNewQuestion = true
-    },
-    editQuestion() {
-      // TODO implement
-    },
+    cancelNewQuestion() { this.isAddingNewQuestion = false },
+    cancelEditingQuestion(uuid) { this.editing[uuid] = false },
+    newQuestionSupplier() { return {choices: []} },
     deleteQuestion(uuid) {
       this.deleteSurveyQuestionApi(uuid)
-      // TODO implement
     },
-    saveQuestion() {
-      this.newQuestion.survey = this.survey._links.self.href
-      this.newQuestion.pos = this.surveyQuestions.length
-      this.createSurveyQuestionApi(this.newQuestion)
-    },
-
-    // CHOICES
-    addQuestionChoice() {
-      this.newQuestion.choices.push({});
-    },
-    deleteQuestionChoice(index) {
-      this.newQuestion.choices.splice(index,1);
+    saveQuestion(question) {
+      question.survey = this.survey._links.self.href
+      if (question.uuid) {
+        this.updateSurveyQuestionApi(question)
+      } else {
+        question.pos = this.surveyQuestions.length
+        this.createSurveyQuestionApi(question)
+        this.isAddingNewQuestion = false
+      }
     }
   }
 }
