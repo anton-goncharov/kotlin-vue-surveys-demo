@@ -21,7 +21,7 @@ interface SurveyRepository: PagingAndSortingRepository<Survey, UUID>
 @RepositoryRestResource(path = "questions")
 interface QuestionRepository: PagingAndSortingRepository<Question, UUID>
 
-@RepositoryRestResource(path = "choices")
+@RepositoryRestResource(path = "choices", exported = false)
 interface ChoiceRepository: PagingAndSortingRepository<Choice, UUID>
 
 @RepositoryRestResource(path = "survey-responses")

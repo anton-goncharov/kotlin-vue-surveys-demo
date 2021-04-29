@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-md-2">
-      <sidebar/>
+      <sidebar v-on:filter-surveys="onFilterUpdate"/>
     </div>
     <div class="col-md-8">
       <survey-list />
@@ -16,6 +16,11 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'Main',
+  data: function() {
+    return {
+      surveysQuery: {}
+    }
+  },
   components: {
     Sidebar,
     SurveyList
@@ -26,6 +31,11 @@ export default {
     })
   },
   methods: {
+    onFilterUpdate(condition) {
+      console.log("conditions", condition);
+      this.surveysQuery = Object.assign(this.surveysQuery, condition)
+      console.log("this.surveysQuery", this.surveysQuery);
+    }
   }
 }
 </script>

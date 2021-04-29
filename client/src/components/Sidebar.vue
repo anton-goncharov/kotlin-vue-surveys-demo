@@ -4,13 +4,13 @@
       <h5 class="w-100">Time Period</h5>
       <ul class="nav nav-pills">
         <li class="nav-item pr-3">
-          <a class="nav-link btn btn-secondary" href="#">Today <span class="badge badge-light">2</span></a>
+          <survey-filter :display-label="'Today'" :filter-value="'today'" :is-selected="isTimeSelected" :on-click="setTimeQuery" />
         </li>
         <li class="nav-item pr-3">
-          <a class="nav-link" href="#">Last Week <span class="badge badge-secondary">16</span></a>
+          <survey-filter :display-label="'Last Week'" :filter-value="'week'" :is-selected="isTimeSelected" :on-click="setTimeQuery" />
         </li>
         <li class="nav-item pr-3">
-          <a class="nav-link" href="#">All Time <span class="badge badge-secondary">57</span></a>
+          <survey-filter :display-label="'All Time'" :filter-value="'all'" :is-selected="isTimeSelected" :on-click="setTimeQuery" />
         </li>
       </ul>
     </div>
@@ -18,13 +18,13 @@
       <h5 class="w-100">Status</h5>
       <ul class="nav nav-pills">
         <li class="nav-item pr-3">
-          <a class="nav-link btn btn-secondary" href="#">All <span class="badge badge-light">42</span></a>
+          <survey-filter :display-label="'Completed'" :filter-value="'completed'" :is-selected="isStatusSelected" :on-click="setStatusQuery" />
         </li>
-        <li class="nav-item pr-3 color-secondary">
-          <a class="nav-link" href="#">Completed <span class="badge badge-secondary">42</span></a>
+        <li class="nav-item pr-3">
+          <survey-filter :display-label="'Incomplete'" :filter-value="'incomplete'" :is-selected="isStatusSelected" :on-click="setStatusQuery" />
         </li>
-        <li class="nav-item pr-3 color-secondary">
-          <a class="nav-link" href="#">Incomplete <span class="badge badge-secondary">16</span></a>
+        <li class="nav-item pr-3">
+          <survey-filter :display-label="'All'" :filter-value="'all'" :is-selected="isStatusSelected" :on-click="setStatusQuery" />
         </li>
       </ul>
     </div>
@@ -32,10 +32,40 @@
 </template>
 
 <script>
+import SurveyFilter from "@/components/SurveyFilter";
+
 export default {
   name: 'Sidebar',
+  components: {SurveyFilter},
   props: {
-    msg: String
+    timeQuery: String,
+    statusQuery: String
+  },
+  data: function() {
+    return {
+      timeSelector: 'all',
+      statusSelector: 'all'
+    }
+  },
+  created() {
+    this.timeSelector = this.timeQuery || this.timeSelector
+    this.statusSelector = this.timeQuery || this.statusSelector
+  },
+  methods: {
+    isTimeSelected(filterValue) {
+      return this.timeSelector === filterValue
+    },
+    isStatusSelected(filterValue) {
+      return this.statusSelector === filterValue
+    },
+    setTimeQuery(condition) {
+      this.$emit(`filter-surveys`, {time: condition})
+      this.timeSelector = condition
+    },
+    setStatusQuery(condition) {
+      this.$emit(`filter-surveys`, {status: condition})
+      this.statusSelector = condition
+    }
   }
 }
 </script>

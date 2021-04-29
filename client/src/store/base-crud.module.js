@@ -8,37 +8,48 @@ export function baseCrud(service, additions) {
     const crudActions = {
         getAll({ commit }, page) {
             commit('getAllRequest');
-
-            service.getAll(page)
-                .then(
+            service.getAll(page).then(
                     response => commit('getAllSuccess', response.data),
                     error => commit('getAllFailure', error)
                 );
         },
         getById({ commit }, id) {
             commit('getByIdRequest');
-
-            service.getById(id)
-                .then(
-                    response => commit('getByIdSuccess', response.data),
+            return service.getById(id).then(
+                    response => {
+                        commit('getByIdSuccess', response.data)
+                        return response.data
+                    },
                     error => commit('getByIdFailure', error)
                 );
+        },
+        create({ commit }, data) {
+            commit('createRequest')
+            service.create(data).then(
+                response => { commit('createSuccess', response.data) },
+                error => commit('createFailure', error)
+            );
+        },
+        update({ commit }, data) {
+            commit('updateRequest')
+            service.update(data).then(
+                // eslint-disable-next-line no-unused-vars
+                response => { commit('updateSuccess') },
+                error => commit('updateFailure', error)
+            );
+        },
+        deleteById({ commit }, uuid) {
+            commit('deleteRequest')
+            service.deleteById(uuid).then(
+                    // eslint-disable-next-line no-unused-vars
+                    response => { commit('deleteSuccess', uuid) },
+                    error => commit('deleteFailure', error)
+                );
         }
-        // create({ commit }, object) {
-        //     commit('createRequest');
-        //     console.log("create", object); // TODO delete before commit
-        // },
-        // update({ commit }, object) {
-        //     commit('updateRequest');
-        //     console.log("update", object); // TODO delete before commit
-        // },
-        // delete({ commit }, id) {
-        //     commit('deleteRequest');
-        //     console.log("delete", id); // TODO delete before commit
-        // }
     }
 
     const crudMutations = {
+        // --------- get mutations
         getAllRequest(state) {
             state.all = { loading: true };
         },
@@ -56,6 +67,40 @@ export function baseCrud(service, additions) {
         },
         getByIdFailure(state, error) {
             state.selected = { error };
+        },
+        // --------- create mutations
+        createRequest(state) {
+            state.selected = { creating: true };
+        },
+        createSuccess(state, data) {
+            state.selected = { item: data, creating: false };
+            state.all.items.push(data)
+        },
+        createFailure(state, error) {
+            state.selected = { error, creating: false };
+        },
+        // --------- update mutations
+        updateRequest(state) {
+            state.selected = { updating: true };
+        },
+        updateSuccess(state) {
+            state.selected = { updating: false };
+            // TODO update in ALL
+        },
+        updateFailure(state, error) {
+            state.selected = { error, updating: false };
+        },
+        // --------- delete mutations
+        deleteRequest(state) {
+            state.selected = { deleting: true };
+        },
+        deleteSuccess(state, uuid) {
+            state.selected = { deleting: false };
+            const index = state.all.items.findIndex(q => q.uuid === uuid)
+            state.all.items.splice(index, 1)
+        },
+        deleteFailure(state, error) {
+            state.selected = { error, deleting: false };
         }
     }
 

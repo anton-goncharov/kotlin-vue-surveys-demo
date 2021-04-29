@@ -10,6 +10,5 @@ data class ChoiceResponse(
     @OneToOne(fetch = FetchType.LAZY)
     var question: Question? = null,
 
-    @OneToOne(fetch = FetchType.LAZY)
-    var choice: Choice? = null
+    var choiceUuid: String? = null
 ): JpaPersistable()
