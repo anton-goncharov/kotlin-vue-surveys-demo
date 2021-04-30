@@ -3,70 +3,75 @@
     <div class="col">
     </div>
     <div v-if="this.survey" class="col-lg-6 col-md-8 col-sm-10">
-
-      <!-- Survey Title -->
-      <div class="row">
-        <div class="col-md-auto">
-          <h3>{{ this.survey.title }}</h3>
-        </div>
-        <div class="col-12">
-          <button class="btn btn-link pl-0" type="button">Rename</button>
-          <button class="btn btn-link" type="button">Change Cover Image</button>
-        </div>
-      </div>
-
-      <!-- Cover Image-->
-      <div class="mt-2" style="width: 400px; height: 200px; background-image: url('https://images.unsplash.com/photo-1593642634315-48f5414c3ad9?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2250&q=80'); background-size: cover">
-      </div>
-
-      <!-- Question -->
-      <!-- TODO a control to reorder questions -->
-      <div v-for="question in this.surveyQuestions" v-bind:key="question.uuid" class="survey-question-block mt-5">
-        <div v-if="!editing[question.uuid]">
-          <div class="row">
-            <div class="col-md-8">
-              <h5>{{ question.text }}</h5>
-            </div>
-            <div class="col-md-4">
-              <button class="btn btn-link" type="button" v-on:click="$set(editing, question.uuid, true)">Edit</button>
-              <button class="btn btn-link text-danger" type="button" v-on:click="deleteQuestion(question.uuid)">Delete</button>
-            </div>
+      <form class="container-fluid" @submit.prevent="submitResponse">
+        <!-- Survey Title -->
+        <div class="row">
+          <div class="col-md-auto">
+            <h3>{{ this.survey.title }}</h3>
           </div>
-          <div v-for="choice in question.choices" v-bind:key="choice.uuid" class="form-check">
-            <!-- Multiselect Question (checkboxes) -->
-            <input v-if="question.multiselect === true" :id="choice.uuid" class="form-check-input" type="checkbox" value="">
-            <!-- Otherwise: Select-One Question (radio buttons) -->
-            <input v-else :id="choice.uuid" :name="question.uuid" class="form-check-input" type="radio" value="">
-            <label :for="choice.uuid" class="form-check-label">
-              {{ choice.text }}
-            </label>
+          <div class="col-12">
+            <button class="btn btn-link pl-0" type="button">Rename</button>
+            <button class="btn btn-link" type="button">Change Cover Image</button>
           </div>
         </div>
-        <survey-question-edit v-else
-                              :question-supplier="() => question"
-                              @cancelled="cancelEditingQuestion"
-                              @saved="saveQuestion" />
-      </div>
 
-      <!-- Add Question Form -->
-      <div class="row">
-        <button v-if="!isAddingNewQuestion"
-                class="btn btn-link mt-4" type="button"
-                v-on:click="isAddingNewQuestion = true">
-          Add Question
-        </button>
-        <survey-question-edit v-else
-                              :question-supplier="newQuestionSupplier"
-                              @cancelled="cancelNewQuestion"
-                              @saved="saveQuestion" />
-      </div>
+        <!-- Cover Image-->
+        <div class="mt-2" style="width: 400px; height: 200px; background-image: url('https://images.unsplash.com/photo-1593642634315-48f5414c3ad9?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2250&q=80'); background-size: cover">
+        </div>
 
-      <!-- Survey Controls -->
-      <div aria-label="Toolbar with button groups" class="btn-toolbar my-5" role="toolbar">
-        <button class="btn btn-primary mr-2" type="button" v-on:click="submitSurveyResponse()">Submit</button>
-        <button class="btn btn-light mr-2" type="button" v-on:click="close()">Close</button>
-        <button class="btn btn-outline-danger" type="button" v-on:click="deleteSurvey()">Delete Survey</button>
-      </div>
+        <!-- Question -->
+          <!-- TODO a control to reorder questions -->
+          <div v-for="(question,qIndex) in this.surveyQuestions" v-bind:key="question.uuid" class="survey-question-block mt-5">
+            <div v-if="!editing[question.uuid]">
+              <div class="row">
+                <div class="col-md-8">
+                  <h5>{{ question.text }}</h5>
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-link" type="button" v-on:click="$set(editing, question.uuid, true)">Edit</button>
+                  <button class="btn btn-link text-danger" type="button" v-on:click="deleteQuestion(question.uuid)">Delete</button>
+                </div>
+              </div>
+              <div v-for="(choice,cIndex) in question.choices" v-bind:key="choice.uuid" class="form-check">
+                <!-- Multiselect Question (checkboxes) -->
+                <input v-if="question.multiselect === true"
+                       :id="choice.uuid" v-model="response[qIndex].choices[cIndex].val" class="form-check-input" type="checkbox"
+                       value="">
+                <!-- Otherwise: Select-One Question (radio buttons) -->
+                <input v-else
+                       :id="choice.uuid" v-model="response[qIndex].choices[cIndex].val" :name="question.uuid" class="form-check-input" type="radio"
+                       value="true">
+                <label :for="choice.uuid" class="form-check-label">
+                  {{ choice.text }}
+                </label>
+              </div>
+            </div>
+            <survey-question-edit v-else
+                                  :question-supplier="() => question"
+                                  @cancelled="editing[question.uuid] = false"
+                                  @saved="saveQuestion" />
+          </div>
+
+        <!-- Add Question Form -->
+        <div class="row">
+          <button v-if="!isAddingNewQuestion"
+                  class="btn btn-link mt-4" type="button"
+                  v-on:click="isAddingNewQuestion = true">
+            Add Question
+          </button>
+          <survey-question-edit v-else
+                                :question-supplier="() => {return {choices: []}}"
+                                @cancelled="isAddingNewQuestion = false"
+                                @saved="saveQuestion" />
+        </div>
+
+        <!-- Survey Controls -->
+        <div aria-label="Toolbar with button groups" class="btn-toolbar my-5" role="toolbar">
+          <input class="btn btn-primary mr-2" title="Submit" type="submit">
+          <button class="btn btn-light mr-2" type="button" v-on:click="close()">Close</button>
+          <button class="btn btn-outline-danger" type="button" v-on:click="deleteSurvey()">Delete Survey</button>
+        </div>
+      </form>
     </div>
 
     <!-- Loading Spinner   -->
@@ -106,12 +111,15 @@ export default {
     } else {
       this.newSurvey()
     }
+
+    // TODO if user already responded, load the response
   },
   computed: {
     ...mapState({
       account: state => state.account,
       survey: state => state.surveys.selected.item,
-      surveyQuestions: state => state.surveyQuestions.all.items
+      surveyQuestions: state => state.surveyQuestions.all.items,
+      response: state => state.surveyQuestions.all.items
     })
   },
   methods: {
@@ -128,23 +136,18 @@ export default {
       updateSurveyQuestionApi: 'update',
       deleteSurveyQuestionApi: 'deleteById'
     }),
-    submitSurveyResponse() {
-      router.back(); // TODO implement
-    },
     deleteSurvey() {
-      router.back(); // TODO implement
+      this.deleteSurveyApi(this.survey.uuid)
+      router.push('/');
     },
     close() {
-      router.back(); // TODO or is it better to router.push('/') ?
+      router.back();
     },
     newSurvey() {
       this.newSurveyApi(() => router.replace("/surveys/" + this.survey.uuid))
     },
 
     // QUESTIONS
-    cancelNewQuestion() { this.isAddingNewQuestion = false },
-    cancelEditingQuestion(uuid) { this.editing[uuid] = false },
-    newQuestionSupplier() { return {choices: []} },
     deleteQuestion(uuid) {
       this.deleteSurveyQuestionApi(uuid)
     },
@@ -152,11 +155,33 @@ export default {
       question.survey = this.survey._links.self.href
       if (question.uuid) {
         this.updateSurveyQuestionApi(question)
+        this.editing[question.uuid] = false
       } else {
         question.pos = this.surveyQuestions.length
         this.createSurveyQuestionApi(question)
         this.isAddingNewQuestion = false
       }
+    },
+
+    // SURVEY RESPONSE
+    submitResponse() {
+      console.log("submitEvent", this.response); // TODO delete before commit
+      const request = { submitted: true, choiceResponses: [] }
+      for (const question of this.response) {
+        for (const choice of question.choices) {
+          if (choice.val) {
+            const choiceResponse = { question: question._links.self.href, choiceUuid: choice.uuid }
+            request.choiceResponses.push(choiceResponse)
+          }
+        }
+      }
+      console.log("request",request); // TODO delete before commit
+      // got thru response.questions
+      // for each question create { question: [link] }
+      // for each choice having "val=true", clone question and add [choiceUuid: uuid]
+
+
+      // router.push('/'); TODO uncomment
     }
   }
 }

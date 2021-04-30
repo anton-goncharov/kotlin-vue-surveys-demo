@@ -42,7 +42,7 @@
     </div>
     <div class="col-12 mt-2">
       <button class="btn btn-outline-primary btn-sm mr-2" v-on:click="$emit('saved', question)">Save Question</button>
-      <button class="btn btn-link btn-sm text-danger" v-on:click="$emit('cancelled')">Cancel</button>
+      <button class="btn btn-link btn-sm text-danger" v-on:click="$emit('cancelled', question.uuid)">Cancel</button>
     </div>
   </div>
 </template>

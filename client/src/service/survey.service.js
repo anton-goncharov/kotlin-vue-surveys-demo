@@ -5,7 +5,7 @@ export const surveyService = {
     getAll,
     getById,
     create,
-    deleteQuestionById
+    deleteById
 };
 
 function getAll(page) {
@@ -42,11 +42,11 @@ function create(survey) {
     return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys`, requestOptions).then(handleResponse);
 }
 
-function deleteQuestionById(id) {
+function deleteById(id) {
     const requestOptions = {
         method: 'DELETE',
         headers: authHeader()
     };
 
-    return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/questions/${id}`, requestOptions).then(handleResponse);
+    return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys/${id}`, requestOptions).then(handleResponse);
 }

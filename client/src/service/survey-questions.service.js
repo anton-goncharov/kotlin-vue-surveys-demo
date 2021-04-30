@@ -17,7 +17,6 @@ function getById(id) {
 }
 
 function create(question) {
-    console.log("create question", question); // TODO delete before commit
     const requestOptions = {
         method: 'POST',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
@@ -28,9 +27,8 @@ function create(question) {
 }
 
 function update(question) {
-    console.log("update question", question); // TODO delete before commit
     const requestOptions = {
-        method: 'POST',
+        method: 'PUT',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
         body: JSON.stringify(question)
     };
@@ -39,7 +37,6 @@ function update(question) {
 }
 
 function deleteById(uuid) {
-    console.log("delete question", uuid); // TODO delete before commit
     const requestOptions = {
         method: 'DELETE',
         headers: authHeader()

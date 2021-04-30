@@ -34,7 +34,7 @@ export function baseCrud(service, additions) {
             commit('updateRequest')
             service.update(data).then(
                 // eslint-disable-next-line no-unused-vars
-                response => { commit('updateSuccess') },
+                response => { commit('updateSuccess'), data },
                 error => commit('updateFailure', error)
             );
         },
@@ -83,8 +83,10 @@ export function baseCrud(service, additions) {
         updateRequest(state) {
             state.selected = { updating: true };
         },
-        updateSuccess(state) {
+        updateSuccess(state, data) {
             state.selected = { updating: false };
+            const index = state.all.items.findIndex(q => q.uuid === data.uuid)
+            state.all.items[index] = data
             // TODO update in ALL
         },
         updateFailure(state, error) {
