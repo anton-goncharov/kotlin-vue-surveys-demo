@@ -14,6 +14,7 @@ data class SurveyResponse(
     var submitted: Boolean = false,
     var submittedAt: Instant? = null,
 
-    @OneToMany(mappedBy = "surveyResponse", cascade = [CascadeType.REMOVE], orphanRemoval = true)
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JoinColumn(name = "survey_response_uuid")
     val choiceResponses: MutableList<ChoiceResponse> = mutableListOf()
 ): JpaPersistable(), UserOwned

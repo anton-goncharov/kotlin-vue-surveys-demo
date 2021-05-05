@@ -38,11 +38,11 @@
     </div><i class="bi bi-trash"></i>
 
     <div class="col-12 mt-3">
-      <button class="btn btn-link btn-sm" v-on:click="addQuestionChoice">Add Choice</button>
+      <button class="btn btn-link btn-sm" type="button" v-on:click="addQuestionChoice">Add Choice</button>
     </div>
     <div class="col-12 mt-2">
-      <button class="btn btn-outline-primary btn-sm mr-2" v-on:click="$emit('saved', question)">Save Question</button>
-      <button class="btn btn-link btn-sm text-danger" v-on:click="$emit('cancelled', question.uuid)">Cancel</button>
+      <button class="btn btn-outline-primary btn-sm mr-2" type="button" v-on:click="$emit('saved', question)">Save Question</button>
+      <button class="btn btn-link btn-sm text-danger" type="button" v-on:click="$emit('cancelled', question.uuid)">Cancel</button>
     </div>
   </div>
 </template>

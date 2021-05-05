@@ -8,10 +8,10 @@ plugins {
     id("org.liquibase.gradle") version "2.0.4"
     id("com.palantir.docker") version "0.22.1"
 
-    kotlin("jvm") version "1.4.21"
-    kotlin("plugin.spring") version "1.4.21"
-    kotlin("plugin.jpa") version "1.4.21"
-    kotlin("plugin.allopen") version "1.4.21" // to add JPA lazy-fetching support
+    kotlin("jvm") version "1.4.30"
+    kotlin("plugin.spring") version "1.4.30"
+    kotlin("plugin.jpa") version "1.4.30"
+    kotlin("plugin.allopen") version "1.4.30" // to add JPA lazy-fetching support
 }
 
 val imageName = "surveys-backend"

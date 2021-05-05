@@ -1,6 +1,8 @@
 package com.antongoncharov.demo.surveys.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import org.hibernate.annotations.Type
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.AbstractAuditable
@@ -11,12 +13,14 @@ import javax.persistence.*
 
 @EntityListeners(AuditingEntityListener::class)
 @MappedSuperclass
+@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
 abstract class JpaPersistable(givenId: UUID? = null) {
 
     @Id
     @Column(name = "uuid")
     @JsonIgnore
     @GeneratedValue
+    @Type(type="uuid-char")
     var id: UUID = givenId ?: UUID.randomUUID()
 
     // existence of a @Version value to tell if it's persisted or not.
@@ -24,8 +28,10 @@ abstract class JpaPersistable(givenId: UUID? = null) {
     @Version
     var version: Long? = null
 
-    val uuid: UUID
+    // spring data rest hides @Id field value from JSON, so we're exposing it as "uuid" delegate field
+    var uuid: UUID
         get() = id
+        set(id) { this.id = id }
 
 //    @ManyToOne
 //    var createdBy: User? = null

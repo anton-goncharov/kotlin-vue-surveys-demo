@@ -15,6 +15,14 @@ const actions = {
                 error => commit('newSurveyFailure', error)
             );
     },
+    updatePartially({ commit }, data) {
+        commit('updateRequest')
+        surveyService.patch(data).then(
+            // eslint-disable-next-line no-unused-vars
+            response => { commit('updateSuccess'), data },
+            error => commit('updateFailure', error)
+        )
+    },
     deleteQuestionById({ commit }, questionUuid) {
         surveyService.deleteQuestionById(questionUuid)
             .then(

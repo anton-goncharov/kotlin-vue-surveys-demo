@@ -10,6 +10,7 @@ data class Question(
     var text: String,
     var pos: Int,
     var multiselect: Boolean = false,
+    var mandatory: Boolean = false,
     var active: Boolean = true,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)

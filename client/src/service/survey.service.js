@@ -5,6 +5,7 @@ export const surveyService = {
     getAll,
     getById,
     create,
+    update,
     deleteById
 };
 
@@ -40,6 +41,16 @@ function create(survey) {
     };
 
     return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys`, requestOptions).then(handleResponse);
+}
+
+function update(survey) {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(survey)
+    };
+
+    return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys/${survey.uuid}`, requestOptions).then(handleResponse);
 }
 
 function deleteById(id) {

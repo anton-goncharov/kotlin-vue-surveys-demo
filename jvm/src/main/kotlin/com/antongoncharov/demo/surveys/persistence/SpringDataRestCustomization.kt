@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry
 @Component
 class SpringDataRestCustomization: RepositoryRestConfigurer {
 
-    val LOG by logger()
+    val log by logger()
 
 //    override fun configureRepositoryRestConfiguration(config: RepositoryRestConfiguration?, cors: CorsRegistry?) {
 //        if (cors != null) {

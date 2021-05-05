@@ -1,7 +1,9 @@
 package com.antongoncharov.demo.surveys.security
 
 import com.antongoncharov.demo.surveys.model.User
+import org.springframework.stereotype.Component
 
+@Component("requestContext")
 class RequestContext {
 
     companion object CurrentUser {

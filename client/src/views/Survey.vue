@@ -2,15 +2,24 @@
   <div class="row">
     <div class="col">
     </div>
-    <div v-if="this.survey" class="col-lg-6 col-md-8 col-sm-10">
-      <form class="container-fluid" @submit.prevent="submitResponse">
+    <div v-if="this.survey && this.formData" class="col-lg-6 col-md-8 col-sm-10">
+      <form class="container-fluid">
         <!-- Survey Title -->
         <div class="row">
-          <div class="col-md-auto">
-            <h3>{{ this.survey.title }}</h3>
+          <div v-if="!isEditingTitle" class="col-md-auto">
+            <h3>{{ this.survey.title }} <span v-if="isSurveySubmitted()" class="badge badge-success">Completed</span></h3>
+          </div>
+          <div v-else class="col-md-auto btn-toolbar">
+            <input id="inlineFormInputGroup" v-model="cachedSurvey.title" class="form-control col-8" placeholder="Enter survey title here" type="text">
+            <div class="input-group-append col-4">
+              <div class="btn-group">
+                <button class="btn btn-outline-primary" type="button" v-on:click="isEditingTitle = false; updateTitle()" value="text">Save</button>
+                <button class="btn btn-outline-secondary" type="button" v-on:click="isEditingTitle = false; flushSurveyCache()" value="text">Cancel</button>
+              </div>
+            </div>
           </div>
           <div class="col-12">
-            <button class="btn btn-link pl-0" type="button">Rename</button>
+            <button class="btn btn-link pl-0" type="button" v-if="!isEditingTitle" v-on:click="isEditingTitle = true">Rename</button>
             <button class="btn btn-link" type="button">Change Cover Image</button>
           </div>
         </div>
@@ -35,12 +44,18 @@
               <div v-for="(choice,cIndex) in question.choices" v-bind:key="choice.uuid" class="form-check">
                 <!-- Multiselect Question (checkboxes) -->
                 <input v-if="question.multiselect === true"
-                       :id="choice.uuid" v-model="response[qIndex].choices[cIndex].val" class="form-check-input" type="checkbox"
-                       value="">
+                       :id="choice.uuid"
+                       :name="question.uuid"
+                       v-model="formData[qIndex].choices[cIndex].val"
+                       :disabled="isSurveySubmitted()"
+                       class="form-check-input" type="checkbox" value="true">
                 <!-- Otherwise: Select-One Question (radio buttons) -->
                 <input v-else
-                       :id="choice.uuid" v-model="response[qIndex].choices[cIndex].val" :name="question.uuid" class="form-check-input" type="radio"
-                       value="true">
+                       :id="choice.uuid"
+                       :name="question.uuid"
+                       v-model="formData[qIndex].choices[cIndex].val"
+                       :disabled="isSurveySubmitted()"
+                       class="form-check-input" type="radio" value="true">
                 <label :for="choice.uuid" class="form-check-label">
                   {{ choice.text }}
                 </label>
@@ -67,7 +82,12 @@
 
         <!-- Survey Controls -->
         <div aria-label="Toolbar with button groups" class="btn-toolbar my-5" role="toolbar">
-          <input class="btn btn-primary mr-2" title="Submit" type="submit">
+          <input class="btn btn-primary mr-2" value="Submit" type="submit"
+                 @click.prevent="submitResponse(true)"
+                 :disabled="isSurveySubmitted()">
+          <input class="btn btn-warning mr-2" value="Save Draft" type="submit"
+                 @click.prevent="submitResponse(false)"
+                 :disabled="isSurveySubmitted()">
           <button class="btn btn-light mr-2" type="button" v-on:click="close()">Close</button>
           <button class="btn btn-outline-danger" type="button" v-on:click="deleteSurvey()">Delete Survey</button>
         </div>
@@ -95,7 +115,10 @@ export default {
   data: function() {
     return {
       isAddingNewQuestion: false,
-      editing: {}
+      isEditingTitle: false,
+      editing: {},
+      cachedSurvey: null,
+      formData: []
     }
   },
   props: {
@@ -103,24 +126,34 @@ export default {
   },
   created() {
     if (this.surveyUuid) {
-      this.getSurveyByIdApi(this.surveyUuid)
-          // populate survey questions store from loaded survey's questions
-          .then(survey => {
-            this.initSurveyQuestions(survey.questions)
-          })
+      this.formData = this.surveyQuestions // default value
+      const apiCalls = [
+        this.getSurveyByIdApi(this.surveyUuid),
+        this.findBySurveyForCurrentUserApi(this.surveyUuid)
+      ];
+      Promise.all(apiCalls).then(responses => {
+        const survey = responses[0]
+        this.initSurveyQuestions(survey.questions)
+        // cache survey for draft form editing (user cancels and we should flush the model to initial state)
+        this.cachedSurvey = Object.assign({}, survey);
+      })
     } else {
       this.newSurvey()
+      this.initSurveyQuestions([])
     }
-
-    // TODO if user already responded, load the response
   },
   computed: {
     ...mapState({
       account: state => state.account,
       survey: state => state.surveys.selected.item,
       surveyQuestions: state => state.surveyQuestions.all.items,
-      response: state => state.surveyQuestions.all.items
+      surveyResponse: state => state.surveyResponses.selected.item
     })
+  },
+  watch: {
+    surveyQuestions: function(val) {
+      this.formData = this.mapResponseToForm(val, this.surveyResponse)
+    }
   },
   methods: {
     ...mapActions('surveys', {
@@ -134,14 +167,32 @@ export default {
       initSurveyQuestions: 'init',
       createSurveyQuestionApi: 'create',
       updateSurveyQuestionApi: 'update',
-      deleteSurveyQuestionApi: 'deleteById'
+      deleteSurveyQuestionApi: 'deleteById',
+      flushSurveyQuestions: 'flush'
     }),
+    ...mapActions('surveyResponses', {
+      findBySurveyForCurrentUserApi: 'findBySurveyForCurrentUser',
+      createSurveyResponseApi: 'create',
+      updateSurveyResponseApi: 'update'
+    }),
+    updateTitle() {
+      this.updateSurveyApi({ uuid: this.cachedSurvey.uuid, title: this.cachedSurvey.title })
+    },
     deleteSurvey() {
-      this.deleteSurveyApi(this.survey.uuid)
-      router.push('/');
+      Promise.all([
+        this.deleteSurveyApi(this.survey.uuid),
+        this.flushSurveyQuestions()
+      ]).then(
+          () => router.push('/')
+      )
+    },
+    flushSurveyCache() {
+      this.cachedSurvey = Object.assign({}, this.survey);
     },
     close() {
-      router.back();
+      this.flushSurveyQuestions().then(
+          () => router.back()
+      )
     },
     newSurvey() {
       this.newSurveyApi(() => router.replace("/surveys/" + this.survey.uuid))
@@ -157,34 +208,51 @@ export default {
         this.updateSurveyQuestionApi(question)
         this.editing[question.uuid] = false
       } else {
-        question.pos = this.surveyQuestions.length
+        question.pos = this.surveyQuestions?.length || 0
         this.createSurveyQuestionApi(question)
         this.isAddingNewQuestion = false
       }
     },
 
     // SURVEY RESPONSE
-    submitResponse() {
-      console.log("submitEvent", this.response); // TODO delete before commit
-      const request = { submitted: true, choiceResponses: [] }
-      for (const question of this.response) {
+    mapResponseToForm(questions, response) {
+      if (questions && response && response.choiceResponses) {
+        // for each choice response in survey response
+        for (const choiceResponse of response.choiceResponses) {
+          // find question
+          questions.filter(q => choiceResponse.question.uuid === q.uuid)
+              .forEach(q => q.choices.filter(c => choiceResponse.choice.uuid === c.uuid)
+                  .forEach(c => c.val = true)
+              )
+        }
+      }
+      return questions
+    },
+    submitResponse(isFinal) {
+      // TODO validate input, all answers should be responded
+      // got thru formData.questions
+      // for each question create { question: [link] }
+      // for each choice having "val=true", clone question and add {choice: uuid}
+      const request = { submitted: isFinal, survey: this.survey._links.self.href, choiceResponses: [] }
+      for (const question of this.formData) {
         for (const choice of question.choices) {
           if (choice.val) {
-            const choiceResponse = { question: question._links.self.href, choiceUuid: choice.uuid }
+            const choiceResponse = {
+              question: question._links.self.href,
+              choice: { uuid: choice.uuid } }
             request.choiceResponses.push(choiceResponse)
           }
         }
       }
-      console.log("request",request); // TODO delete before commit
-      // got thru response.questions
-      // for each question create { question: [link] }
-      // for each choice having "val=true", clone question and add [choiceUuid: uuid]
-
-
-      // router.push('/'); TODO uncomment
+      this.createSurveyResponseApi(request);
+      router.push('/');
+    },
+    isSurveySubmitted() {
+      return this.surveyResponse && this.surveyResponse.submitted
     }
   }
 }
+
 </script>
 
 <style>

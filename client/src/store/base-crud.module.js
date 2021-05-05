@@ -3,106 +3,120 @@ export function baseCrud(service, additions) {
     const crudState = {
         all: {},
         selected: {}
-    };
+    }
 
     const crudActions = {
         getAll({ commit }, page) {
-            commit('getAllRequest');
+            commit('getAllRequest')
             service.getAll(page).then(
                     response => commit('getAllSuccess', response.data),
                     error => commit('getAllFailure', error)
-                );
+                )
         },
         getById({ commit }, id) {
-            commit('getByIdRequest');
+            commit('getByIdRequest')
             return service.getById(id).then(
                     response => {
                         commit('getByIdSuccess', response.data)
                         return response.data
                     },
                     error => commit('getByIdFailure', error)
-                );
+                )
         },
         create({ commit }, data) {
             commit('createRequest')
             service.create(data).then(
                 response => { commit('createSuccess', response.data) },
                 error => commit('createFailure', error)
-            );
+            )
         },
         update({ commit }, data) {
             commit('updateRequest')
             service.update(data).then(
                 // eslint-disable-next-line no-unused-vars
-                response => { commit('updateSuccess'), data },
+                () => { commit('updateSuccess', data) },
                 error => commit('updateFailure', error)
-            );
+            )
         },
         deleteById({ commit }, uuid) {
             commit('deleteRequest')
-            service.deleteById(uuid).then(
+            return service.deleteById(uuid).then(
                     // eslint-disable-next-line no-unused-vars
-                    response => { commit('deleteSuccess', uuid) },
+                    response => commit('deleteSuccess', uuid),
                     error => commit('deleteFailure', error)
-                );
+                )
+        },
+        flush({ commit }) {
+            return commit('flush')
         }
-    }
+     }
 
     const crudMutations = {
         // --------- get mutations
         getAllRequest(state) {
-            state.all = { loading: true };
+            state.all = { loading: true }
         },
         getAllSuccess(state, items) {
-            state.all = { items: items };
+            state.all = { items: items }
         },
         getAllFailure(state, error) {
-            state.all = { error };
+            state.all = { error }
         },
         getByIdRequest(state) {
-            state.selected = { loading: true };
+            state.selected = { loading: true }
         },
         getByIdSuccess(state, item) {
-            state.selected = { item: item };
+            state.selected = { item: item }
         },
         getByIdFailure(state, error) {
-            state.selected = { error };
+            state.selected = { error }
         },
         // --------- create mutations
         createRequest(state) {
-            state.selected = { creating: true };
+            state.selected = { creating: true }
         },
         createSuccess(state, data) {
-            state.selected = { item: data, creating: false };
-            state.all.items.push(data)
+            state.selected = { item: data, creating: false }
+            if (state.all && state.all.items) {
+                state.all.items.push(data)
+            }
         },
         createFailure(state, error) {
-            state.selected = { error, creating: false };
+            state.selected = { error, creating: false }
         },
         // --------- update mutations
         updateRequest(state) {
-            state.selected = { updating: true };
+            state.selected.updating = true
         },
         updateSuccess(state, data) {
-            state.selected = { updating: false };
-            const index = state.all.items.findIndex(q => q.uuid === data.uuid)
-            state.all.items[index] = data
-            // TODO update in ALL
+            state.selected.updating = false
+            state.selected.item = Object.assign(state.selected.item, data)
+            if (state.all && state.all.items) {
+                const index = state.all.items.findIndex(q => q.uuid === data.uuid)
+                state.all.items[index] = Object.assign(state.all.items[index], data)
+            }
         },
         updateFailure(state, error) {
-            state.selected = { error, updating: false };
+            console.log("failure", error); // TODO delete before commit
+            state.selected = { error, updating: false }
         },
         // --------- delete mutations
         deleteRequest(state) {
-            state.selected = { deleting: true };
+            state.selected = { deleting: true }
         },
         deleteSuccess(state, uuid) {
-            state.selected = { deleting: false };
-            const index = state.all.items.findIndex(q => q.uuid === uuid)
-            state.all.items.splice(index, 1)
+            state.selected = { deleting: false }
+            if (state.all && state.all.items) {
+                const index = state.all.items.findIndex(q => q.uuid === uuid)
+                state.all.items.splice(index, 1)
+            }
         },
         deleteFailure(state, error) {
-            state.selected = { error, deleting: false };
+            state.selected = { error, deleting: false }
+        },
+        flush(state) {
+            state.all = {}
+            state.selected= {}
         }
     }
 
