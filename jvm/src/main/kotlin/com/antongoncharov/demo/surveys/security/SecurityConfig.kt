@@ -46,6 +46,14 @@ class SecurityConfig(
 
 
     override fun configure(httpSecurity: HttpSecurity) {
+        // Set permissions on endpoints
+        httpSecurity
+            .authorizeRequests()
+                .antMatchers("/api/v1/").permitAll() // hal browser
+                .antMatchers("/api/v1/public/**").permitAll()
+                .antMatchers("/api/v1/uploads/**").permitAll()
+                .antMatchers("/h2-console/**").permitAll()
+            .anyRequest().authenticated()
 
         // Enable CORS and disable CSRF
         httpSecurity
@@ -57,15 +65,6 @@ class SecurityConfig(
         httpSecurity
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and();
-
-        // Set permissions on endpoints
-        httpSecurity
-            .authorizeRequests()
-                .antMatchers("/api/v1/").permitAll() // hal browser
-                .antMatchers("/api/v1/public/**").permitAll()
-                .antMatchers("/h2-console/**").permitAll()
-            .anyRequest().authenticated()
 
         // Add JWT token filter
         httpSecurity.addFilterBefore(

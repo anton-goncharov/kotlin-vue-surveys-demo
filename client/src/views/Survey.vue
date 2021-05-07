@@ -14,7 +14,7 @@
             <div class="input-group-append col-4">
               <div class="btn-group">
                 <button class="btn btn-outline-primary" type="button" v-on:click="isEditingTitle = false; updateTitle()" value="text">Save</button>
-                <button class="btn btn-outline-secondary" type="button" v-on:click="isEditingTitle = false; flushSurveyCache()" value="text">Cancel</button>
+                <button class="btn btn-outline-secondary" type="button" v-on:click="isEditingTitle = false; flushCachedSurvey()" value="text">Cancel</button>
               </div>
             </div>
           </div>
@@ -117,7 +117,7 @@ export default {
       isAddingNewQuestion: false,
       isEditingTitle: false,
       editing: {},
-      cachedSurvey: null,
+      cachedSurvey: null, // TODO make all changes to cached copy
       formData: []
     }
   },
@@ -138,7 +138,7 @@ export default {
         this.cachedSurvey = Object.assign({}, survey);
       })
     } else {
-      this.newSurvey()
+      this.initNewSurvey()
       this.initSurveyQuestions([])
     }
   },
@@ -186,7 +186,7 @@ export default {
           () => router.push('/')
       )
     },
-    flushSurveyCache() {
+    flushCachedSurvey() {
       this.cachedSurvey = Object.assign({}, this.survey);
     },
     close() {
@@ -194,7 +194,7 @@ export default {
           () => router.back()
       )
     },
-    newSurvey() {
+    initNewSurvey() {
       this.newSurveyApi(() => router.replace("/surveys/" + this.survey.uuid))
     },
 
@@ -229,7 +229,7 @@ export default {
       return questions
     },
     submitResponse(isFinal) {
-      // TODO validate input, all answers should be responded
+      // TODO validate input, all arbitrary questions should be responded
       // got thru formData.questions
       // for each question create { question: [link] }
       // for each choice having "val=true", clone question and add {choice: uuid}
@@ -244,8 +244,10 @@ export default {
           }
         }
       }
-      this.createSurveyResponseApi(request);
-      router.push('/');
+      this.createSurveyResponseApi(request).then(
+          // go to the main page
+          () => {router.push('/')}
+      );
     },
     isSurveySubmitted() {
       return this.surveyResponse && this.surveyResponse.submitted
