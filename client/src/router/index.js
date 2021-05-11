@@ -6,6 +6,7 @@ import Register from "@/views/Register.vue"
 import Survey from "@/views/Survey";
 import Profile from "@/views/Profile";
 import UserManagement from "@/views/UserManagement";
+import SurveyStats from "../views/SurveyStats";
 
 Vue.use(VueRouter)
 
@@ -43,9 +44,15 @@ export const router = new VueRouter({
             component: Survey
         },
         {
-            path: "/surveys/:surveyUuid", // TODO use survey slug name instead of ID
+            path: "/surveys/:surveyUuid", // TODO allow survey slug name instead of ID
             name: "surveyById",
             component: Survey,
+            props: true
+        },
+        {
+            path: "/surveys/:surveyUuid/stats",
+            name: "surveyStats",
+            component: SurveyStats,
             props: true
         },
 

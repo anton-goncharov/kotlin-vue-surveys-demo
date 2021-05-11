@@ -4,11 +4,15 @@ import com.antongoncharov.demo.surveys.AppProperties
 import com.antongoncharov.demo.surveys.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
+import org.springframework.util.unit.DataSize
+import org.springframework.util.unit.DataUnit
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @RestController
 class ImageController(
@@ -19,6 +23,8 @@ class ImageController(
 
     private val imageStore = File(appProperties.imageStore["path"])
 
+    private val FILE_SIZE_LIMIT_BYTES = DataSize.ofMegabytes(5).toBytes()
+
     init {
         imageStore.mkdirs()
     }
@@ -26,22 +32,22 @@ class ImageController(
     @PostMapping("/images")
     fun uploadImage(@RequestParam("file") file: MultipartFile): ResponseEntity<Any> {
         log.info("POST /images")
-        // size should be < 100kb (otherwise returns HTTP 413 Payload Too Large)
-        if (file.size > 1024*100) {
+        // size should be < 5MB (otherwise returns HTTP 413 Payload Too Large)
+        if (file.size > FILE_SIZE_LIMIT_BYTES) {
             return ResponseEntity.status(413).build()
         }
 
-        if (file.contentType == null) {
+        if (file.contentType == null || file.originalFilename == null) {
             return ResponseEntity.badRequest().build()
         }
 
-        File(imageStore, file.originalFilename ?: "newfile").writeBytes(file.bytes)
+        val current = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_")
+        val filename = current.format(formatter) + file.originalFilename
 
-//        TODO handle
-//        file.bytes
-//        file.contentType
+        File(imageStore, filename).writeBytes(file.bytes)
 
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok().header("Location", "/api/v1/uploads/$filename").build()
     }
 
 }

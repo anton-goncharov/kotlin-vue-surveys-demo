@@ -6,21 +6,21 @@
 
     <!-- Pagination -->
     <nav>
-      <ul v-if="surveys.items.page.totalPages > 1" class="pagination">
+      <ul v-if="surveys.page.totalPages > 1" class="pagination">
         <!-- disable '<<' only if it's first page -->
-        <li class="page-item" v-bind:class="{disabled: surveys.items.page.number === 0}">
-          <a :href="'/?page=' + (surveys.items.page.number - 1)" class="page-link">
+        <li class="page-item" v-bind:class="{disabled: surveys.page.number === 0}">
+          <a :href="'/?page=' + (surveys.page.number - 1)" class="page-link">
             <span aria-hidden="true">&laquo;</span>
             <span class="sr-only">Previous</span>
           </a>
         </li>
-        <li v-for="n in surveys.items.page.totalPages" v-bind:key="'page'+ n" class="page-item"
-            v-bind:class="{ active: (surveys.items.page.number === n-1) }">
+        <li v-for="n in surveys.page.totalPages" v-bind:key="'page'+ n" class="page-item"
+            v-bind:class="{ active: (surveys.page.number === n-1) }">
           <a :href="'/?page=' + (n - 1)" class="page-link">{{ n }}</a>
         </li>
         <!-- disable '>>' only if current page number is max -->
-        <li class="page-item" v-bind:class="{disabled: surveys.items.page.number === (surveys.items.page.totalPages - 1)}">
-          <a :href="'/?page=' + (surveys.items.page.number + 1)" class="page-link">
+        <li class="page-item" v-bind:class="{disabled: surveys.page.number === (surveys.page.totalPages - 1)}">
+          <a :href="'/?page=' + (surveys.page.number + 1)" class="page-link">
             <span aria-hidden="true">&raquo;</span>
             <span class="sr-only">Next</span>
           </a>
@@ -31,8 +31,8 @@
 
     <!-- Survey Card -->
     <div class="row survey-card-list my-5">
-      <div v-for="survey in surveys.items._embedded.surveys" :key="survey.uuid" class="col-md-3 my-2">
-        <survey-card :title="survey.title" :uuid="survey.uuid" v-on:click="openSurvey(survey.uuid)"/>
+      <div v-for="survey in surveys.items" :key="survey.uuid" class="col-md-3 my-2">
+        <survey-card :title="survey.title" :uuid="survey.uuid" :image-url="survey.imageUrl" v-on:click="openSurvey(survey.uuid)"/>
       </div>
     </div>
 

@@ -25,8 +25,11 @@ export function baseCrud(service, additions) {
         },
         create({ commit }, data) {
             commit('createRequest')
-            service.create(data).then(
-                response => { commit('createSuccess', response.data) },
+            return service.create(data).then(
+                response => {
+                    commit('createSuccess', response.data)
+                    return response.data
+                },
                 error => commit('createFailure', error)
             )
         },
@@ -57,7 +60,18 @@ export function baseCrud(service, additions) {
             state.all = { loading: true }
         },
         getAllSuccess(state, items) {
-            state.all = { items: items }
+            // The 'items' can be an object having '_embedded' prop with page number, num of pages etc.
+            // It's important to save all this data, but at the same time to unify access
+            // to the nested array.
+            const embedded = items._embedded
+            if (embedded) {
+                state.all = {
+                    items: embedded[Object.keys(embedded)[0]],
+                    page: items.page
+                }
+            } else {
+                state.all = { items: items }
+            }
         },
         getAllFailure(state, error) {
             state.all = { error }
@@ -106,6 +120,7 @@ export function baseCrud(service, additions) {
         },
         deleteSuccess(state, uuid) {
             state.selected = { deleting: false }
+            console.log("state.all", state.all); // TODO delete before commit
             if (state.all && state.all.items) {
                 const index = state.all.items.findIndex(q => q.uuid === uuid)
                 state.all.items.splice(index, 1)

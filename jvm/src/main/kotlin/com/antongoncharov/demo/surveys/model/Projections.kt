@@ -8,6 +8,7 @@ import java.util.*
 interface SurveyWithQuestions {
     val uuid: UUID
     val title: String
+    val imageUrl: String?
     val active: Boolean
     val questions: MutableList<QuestionWithChoices>
 }

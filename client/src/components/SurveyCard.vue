@@ -1,6 +1,6 @@
 <template>
   <a :href="`/surveys/${uuid}`" class="nounderline">
-    <div class="survey-card bg-dark">
+    <div class="survey-card" :class="{ 'bg-dark' : !imageUrl }" :style="{ backgroundImage: imageUrl ? 'url(' + this.$apiUrl + imageUrl + ')' : 'none' }">
       <div class="h-75 p-3">
         <h4 class="text-light">{{ title }}</h4>
       </div>
@@ -18,7 +18,8 @@ export default {
   name: 'SurveyCard',
   props: {
     title: String,
-    uuid: String
+    imageUrl: String,
+    uuid: String,
   }
 }
 </script>
@@ -31,6 +32,10 @@ export default {
 
   border: 1px solid #dee2e6;
   border-radius: 7px;
+  background-color: rgba(0, 0, 0, 0.3);
+  background-size: cover;
+  background-blend-mode: overlay;
+
 }
 
 .nounderline {

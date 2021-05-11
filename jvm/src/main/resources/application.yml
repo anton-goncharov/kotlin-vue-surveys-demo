@@ -13,22 +13,19 @@ spring:
       ddl-auto: update
   liquibase:
     enabled: false
-#  data:
-#    rest:
-#      base-path: "/api/v1"
   mvc:
     servlet:
       path: "/api/v1"
   web:
     resources:
-#      TODO serve from 'file://' location, in docker map to a volume
-      static-locations: "classpath:/static/"
+      # TODO in docker map to a volume
+      static-locations: "file:/Users/antongoncharov/GitRepositories/personal/kotlin-vue-surveys-demo/jvm/src/main/resources/static/"
 
 jwt:
   secret: "p2FpI17UQx3Z+RRyvFfigMUDGaBkhLgB30NXrbn/NANW2//u/eVzQwSFYxQEpZHeQ0audHPXyiRHiDER0oQqPGDGgvnaLJiJ3g/HuEo34hj/FmNh7LpR/1NFUiYtcOl0qAgfWZee+OtUCtpWnuxlS3BrybIvqqNmzQOMMGowN+aWeuE451J/CAGNXqwQLQkCXmpTG7HeOU4JJ6gRg9qvgEMSoJSIwg1I3eXgPA=="
 
 
-#      TODO upload to 'file://' location, in docker map to a volume
 app:
   imageStore:
-    path: "src/main/resources/static/uploads"
+    # TODO in docker map to a volume
+    path: "/Users/antongoncharov/GitRepositories/personal/kotlin-vue-surveys-demo/jvm/src/main/resources/static/uploads"

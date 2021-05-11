@@ -20,16 +20,30 @@
           </div>
           <div class="col-12">
             <button class="btn btn-link pl-0" type="button" v-if="!isEditingTitle" v-on:click="isEditingTitle = true">Rename</button>
-            <button class="btn btn-link" type="button">Change Cover Image</button>
           </div>
         </div>
 
         <!-- Cover Image-->
-        <div class="mt-2" style="width: 400px; height: 200px; background-image: url('https://images.unsplash.com/photo-1593642634315-48f5414c3ad9?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2250&q=80'); background-size: cover">
+        <button v-if="!isEditingImage" class="btn btn-link pl-0" type="button" v-on:click="isEditingImage = true">Change Cover Image</button>
+        <button v-if="isEditingImage && hasImage" class="btn btn-link pl-0" type="button" v-on:click="saveSurveyImage">Save Cover Image</button>
+        <button v-if="isEditingImage" class="btn btn-link text-secondary pl-0" type="button" v-on:click="isEditingImage = false; hasImage = false;">Cancel Image Editing</button>
+        <div v-if="!isEditingImage && survey.imageUrl" class="mt-2" style="width: 400px; height: 200px; background-size: cover;" v-bind:style="{ backgroundImage: 'url(\'' + this.$apiUrl + survey.imageUrl + '\')' }">
         </div>
+        <image-uploader v-if="isEditingImage"
+              :quality="0.9"
+              :autoRotate=true
+              outputFormat="file"
+              :preview=true
+              :className="['', { 'fileinput--loaded' : hasImage }]"
+              :capture="false"
+              accept="video/*,image/*"
+              doNotResize="['gif', 'svg']"
+              @input="setImage"
+          ></image-uploader>
+
 
         <!-- Question -->
-          <!-- TODO a control to reorder questions -->
+          <!-- TODO add a control to reorder questions -->
           <div v-for="(question,qIndex) in this.surveyQuestions" v-bind:key="question.uuid" class="survey-question-block mt-5">
             <div v-if="!editing[question.uuid]">
               <div class="row">
@@ -108,14 +122,18 @@
 import { mapState, mapActions } from 'vuex'
 import {router} from "@/router";
 import SurveyQuestionEdit from "@/components/SurveyQuestionEdit";
+import ImageUploader from 'vue-image-upload-resize'
 
 export default {
   name: 'Survey',
-  components: {SurveyQuestionEdit},
+  components: {SurveyQuestionEdit, ImageUploader},
   data: function() {
     return {
       isAddingNewQuestion: false,
       isEditingTitle: false,
+      isEditingImage: false,
+      hasImage: false,
+      surveyImage: null,
       editing: {},
       cachedSurvey: null, // TODO make all changes to cached copy
       formData: []
@@ -126,6 +144,7 @@ export default {
   },
   created() {
     if (this.surveyUuid) {
+      // if existing survey is opened
       this.formData = this.surveyQuestions // default value
       const apiCalls = [
         this.getSurveyByIdApi(this.surveyUuid),
@@ -138,6 +157,7 @@ export default {
         this.cachedSurvey = Object.assign({}, survey);
       })
     } else {
+      // if new survey is created
       this.initNewSurvey()
       this.initSurveyQuestions([])
     }
@@ -162,6 +182,7 @@ export default {
       createSurveyApi: 'create',
       updateSurveyApi: 'update',
       deleteSurveyApi: 'deleteById',
+      setSurveyImageApi: 'setSurveyImage'
     }),
     ...mapActions('surveyQuestions', {
       initSurveyQuestions: 'init',
@@ -175,6 +196,8 @@ export default {
       createSurveyResponseApi: 'create',
       updateSurveyResponseApi: 'update'
     }),
+
+    // SURVEY
     updateTitle() {
       this.updateSurveyApi({ uuid: this.cachedSurvey.uuid, title: this.cachedSurvey.title })
     },
@@ -195,7 +218,28 @@ export default {
       )
     },
     initNewSurvey() {
-      this.newSurveyApi(() => router.replace("/surveys/" + this.survey.uuid))
+      this.newSurveyApi(() => {
+        router.replace("/surveys/" + this.survey.uuid)
+        this.flushCachedSurvey()
+      })
+    },
+
+    // SURVEY IMAGE
+    setImage(file) {
+      this.hasImage = true
+      this.surveyImage = file
+    },
+    saveSurveyImage() {
+      this.setSurveyImageApi(this.surveyImage).then(
+          (location) => {
+            this.updateSurveyApi({
+              uuid: this.cachedSurvey.uuid,
+              title: this.cachedSurvey.title, // TODO avoid setting it here
+              imageUrl: location
+            })
+            this.isEditingImage = false
+          }
+      )
     },
 
     // QUESTIONS
@@ -258,4 +302,12 @@ export default {
 </script>
 
 <style>
+.input-hidden {
+  opacity: 0;
+}
+.img-preview {
+  width: 200px;
+  display: block;
+  margin-bottom: 10px;
+}
 </style>

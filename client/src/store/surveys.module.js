@@ -1,5 +1,6 @@
 import { surveyService } from '@/service';
 import { baseCrud } from './base-crud.module';
+import {imageService} from "../service";
 
 const state = {
 };
@@ -15,13 +16,15 @@ const actions = {
                 error => commit('newSurveyFailure', error)
             );
     },
-    updatePartially({ commit }, data) {
-        commit('updateRequest')
-        surveyService.patch(data).then(
-            // eslint-disable-next-line no-unused-vars
-            response => { commit('updateSuccess'), data },
-            error => commit('updateFailure', error)
-        )
+    setSurveyImage({ commit }, file, contentType) {
+        return imageService.upload(file, contentType)
+            .then(
+                response => {
+                    commit('surveyImageUploadSuccess', response)
+                    return response
+                },
+                error => commit('surveyImageUploadFailure', error)
+            );
     },
     deleteQuestionById({ commit }, questionUuid) {
         surveyService.deleteQuestionById(questionUuid)
@@ -47,6 +50,11 @@ const mutations = {
         state.selected.item.questions.splice(index, 1)
     },
     deleteQuestionFailure() {
+    },
+    surveyImageUploadSuccess(state, imageUrl) {
+        state.selected.item.imageUrl = imageUrl
+    },
+    surveyImageUploadFailure() {
     }
 }
 

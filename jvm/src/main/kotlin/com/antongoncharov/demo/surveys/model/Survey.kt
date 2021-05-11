@@ -7,6 +7,7 @@ data class Survey(
     @ManyToOne
     override var user: User? = null,
 
+    var imageUrl: String? = null,
     var title: String,
     var active: Boolean = true,
 
