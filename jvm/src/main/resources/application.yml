@@ -11,6 +11,15 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+#  data:
+#    r2dbc:
+#      repositories:
+#        enabled: false
+  rsocket:
+    server:
+      transport: websocket
+      mapping-path: /rsocket
+      port: 8082
   liquibase:
     enabled: false
   mvc:

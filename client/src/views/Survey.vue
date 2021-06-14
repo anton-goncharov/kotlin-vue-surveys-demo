@@ -199,7 +199,7 @@ export default {
 
     // SURVEY
     updateTitle() {
-      this.updateSurveyApi({ uuid: this.cachedSurvey.uuid, title: this.cachedSurvey.title })
+      this.updateSurveyApi({ ...this.cachedSurvey, title: this.cachedSurvey.title })
     },
     deleteSurvey() {
       Promise.all([

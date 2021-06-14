@@ -3,7 +3,7 @@ import java.util.Properties
 import kotlin.collections.*
 
 plugins {
-    id("org.springframework.boot") version "2.4.2"
+    id("org.springframework.boot") version "2.4.3"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.liquibase.gradle") version "2.0.4"
     id("com.palantir.docker") version "0.22.1"
@@ -27,16 +27,20 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven(url = "http://repo.spring.io/libs-release")
+    maven(url = "http://repo.spring.io/libs-milestone")
+    maven(url = "http://repo.spring.io/libs-snapshot")
 }
 
 dependencies {
     // embedded H2 database
-    runtimeOnly("com.h2database:h2")
+    runtimeOnly("com.h2database:h2:1.4.200")
+//    runtimeOnly("io.r2dbc:r2dbc-h2")
 
     // liquibase
     liquibaseRuntime("org.liquibase:liquibase-core")
     liquibaseRuntime("org.liquibase.ext:liquibase-hibernate5:3.8")
-    liquibaseRuntime("com.h2database:h2")
+    liquibaseRuntime("com.h2database:h2:1.4.200")
     liquibaseRuntime("ch.qos.logback:logback-core:1.2.3")
     liquibaseRuntime("ch.qos.logback:logback-classic:1.2.3")
     liquibaseRuntime("javax.persistence:javax.persistence-api:2.2")
@@ -45,22 +49,29 @@ dependencies {
     liquibaseRuntime("org.jetbrains.kotlin:kotlin-noarg") // to use kotlin data classes in JPA
     liquibaseRuntime(files("build/classes/kotlin/main"))
     liquibaseRuntime(files("build/resources/main"))
-//    liquibaseRuntime(sourceSets.main.runtimeClasspath)
-//    liquibaseRuntime(sourceSets.main.output)
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-rest")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-rsocket")
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+//    implementation("org.springframework.data:spring-data-r2dbc:1.3.1")
+    implementation("io.r2dbc:r2dbc-h2")
+    implementation("io.r2dbc:r2dbc-spi:0.9.0.M1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+    // reactor/webflux with coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
     implementation("org.liquibase:liquibase-core")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
 
-//    developmentOnly("org.springframework.boot:spring-boot-devtools")
     compileOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 

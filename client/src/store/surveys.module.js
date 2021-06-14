@@ -40,6 +40,7 @@ const mutations = {
     newSurveySuccess(state, created) {
         state.selected = {}
         state.selected.item = created.data
+        state.all.items.push(created.data)
     },
     newSurveyFailure() {
         // TODO redirect back to main page with some error alert

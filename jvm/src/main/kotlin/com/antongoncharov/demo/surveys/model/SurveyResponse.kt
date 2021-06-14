@@ -1,11 +1,14 @@
 package com.antongoncharov.demo.surveys.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.Instant
+import java.util.*
 import javax.persistence.*
 
 @Entity
 data class SurveyResponse(
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.DETACH])
+    @JsonIgnore
     var survey: Survey? = null,
 
     @ManyToOne
