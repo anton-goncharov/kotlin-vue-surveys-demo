@@ -7,24 +7,14 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 import java.util.*
 
-
 @Table("SURVEY_RESPONSE")
 data class SurveyResponseRow (
 
     var uuid: String? = null,
     var surveyUuid: String? = null,
     var submittedAt: Instant? = null,
-    var createdDate: Instant? = null
+    var createdDate: Instant? = null,
 
-) {
-    fun asSurveyResponse(choiceResponses: MutableList<ChoiceResponse>): SurveyResponse {
-        val surveyResponse = SurveyResponse(
-            choiceResponses = choiceResponses,
-            submittedAt = submittedAt
-        )
-        surveyResponse.survey = Survey(title = "")
-        surveyResponse.survey!!.uuid = UUID.fromString(surveyUuid)
-        surveyResponse.createdDate = createdDate
-        return surveyResponse
-    }
-}
+    @Transient
+    var choiceResponses: MutableList<ChoiceResponseRow> = mutableListOf()
+)

@@ -4,9 +4,7 @@ import com.antongoncharov.demo.surveys.model.SurveyResponse
 import com.antongoncharov.demo.surveys.model.r2dbc.SurveyResponseRow
 import com.antongoncharov.demo.surveys.persistence.ChoiceResponseRepository
 import com.antongoncharov.demo.surveys.persistence.SurveyResponseRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort.Order.desc
 import org.springframework.data.domain.Sort.by
@@ -26,6 +24,9 @@ class SurveyResponseService(
 
     fun stream(): Flow<SurveyResponse> = sender
 
+    /**
+     * Returns all existing survey responses for the given survey uuid
+     */
     suspend fun allBySurveyUuid(surveyUuid: String): Flow<SurveyResponse> = r2dbcEntityTemplate
         .select(
             Query.query(
@@ -43,5 +44,13 @@ class SurveyResponseService(
     suspend fun post(responses: Flow<SurveyResponse>) =
         responses
             .onEach { sender.emit(it) }
-            .let { r2dbcEntityTemplate.insert(responses) }
+                // map to "a SurveyResponseRow + a list of ChoiceResponseRows"
+            .map { it.asRelational() }
+                // it can only insert a row
+            .let {
+                r2dbcEntityTemplate.insert(it)
+                it.onEach {
+                    r2dbcEntityTemplate.insert(it.choiceResponses.asFlow())
+                }
+            }
 }

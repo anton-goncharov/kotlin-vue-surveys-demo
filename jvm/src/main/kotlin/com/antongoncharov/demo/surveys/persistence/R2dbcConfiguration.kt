@@ -9,6 +9,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 @Configuration
 class R2dbcConfiguration {
 
+    // TODO load from application.yml
     val connectionFactory =
         H2ConnectionFactory(
             H2ConnectionConfiguration.builder()
