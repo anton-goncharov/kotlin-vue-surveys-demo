@@ -28,7 +28,7 @@ interface ChoiceRepository: PagingAndSortingRepository<Choice, UUID>
 @RepositoryRestResource(path = "survey-responses")
 interface SurveyResponseRepository: PagingAndSortingRepository<SurveyResponse, UUID> {
 
-    fun findByUuid(uuid: UUID?): Optional<SurveyResponseBrief>
+    fun findBriefById(uuid: UUID?): SurveyResponseBrief
 
     fun findAllByUser(user: User): List<SurveyResponse>
 

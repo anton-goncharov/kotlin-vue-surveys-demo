@@ -26,7 +26,7 @@ interface QuestionWithChoices {
 
 @Projection(name = "surveyResponseBrief", types = [SurveyResponse::class])
 interface SurveyResponseBrief {
-    val uuid: UUID
+    val id: UUID
     val submitted: Boolean
     val submittedAt: Instant
     val choiceResponses: MutableList<ChoiceResponseBrief>
@@ -40,10 +40,10 @@ interface ChoiceResponseBrief {
 
 @Projection(name = "choiceBrief", types = [Choice::class])
 interface ChoiceBrief {
-    val uuid: UUID
+    val id: UUID
 }
 
 @Projection(name = "questionBrief", types = [Question::class])
 interface QuestionBrief {
-    val uuid: UUID
+    val id: UUID
 }

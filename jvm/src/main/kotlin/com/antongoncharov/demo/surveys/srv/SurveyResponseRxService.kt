@@ -1,33 +1,57 @@
 package com.antongoncharov.demo.surveys.srv
 
+import com.antongoncharov.demo.surveys.logger
 import com.antongoncharov.demo.surveys.model.SurveyResponse
+import com.antongoncharov.demo.surveys.model.SurveyResponseBrief
 import com.antongoncharov.demo.surveys.model.r2dbc.SurveyResponseRow
-import com.antongoncharov.demo.surveys.persistence.ChoiceResponseRepository
 import com.antongoncharov.demo.surveys.persistence.SurveyResponseRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.data.domain.Sort.Order.desc
 import org.springframework.data.domain.Sort.by
+import org.springframework.data.projection.ProjectionFactory
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
+
 @Service
-class SurveyResponseService(
+class SurveyResponseRxService(
     private val r2dbcEntityTemplate: R2dbcEntityTemplate,
     private val surveyResponseRepository: SurveyResponseRepository
 ) {
 
-    val sender: MutableSharedFlow<SurveyResponse> = MutableSharedFlow()
+    val log by logger()
+    val pf: ProjectionFactory = SpelAwareProxyProjectionFactory()
 
-    fun stream(): Flow<SurveyResponse> = sender
+    val sender: MutableSharedFlow<SurveyResponseBrief> = MutableSharedFlow()
+
+    fun stream(): Flow<SurveyResponseBrief> = sender
+
+    /**
+     * Returns all existing survey responses
+     */
+    @Transactional
+    suspend fun findAll(): Flow<SurveyResponseBrief> = r2dbcEntityTemplate
+        .select(
+            Query.empty().sort(by(desc("created_date"))),
+            SurveyResponseRow::class.java
+        )
+        .map {
+            val brief = surveyResponseRepository.findBriefById(UUID.fromString(it.uuid!!))
+            brief
+        }
+        .asFlow()
+
 
     /**
      * Returns all existing survey responses for the given survey uuid
      */
-    suspend fun allBySurveyUuid(surveyUuid: String): Flow<SurveyResponse> = r2dbcEntityTemplate
+    suspend fun findAllBySurveyUuid(surveyUuid: String): Flow<SurveyResponse> = r2dbcEntityTemplate
         .select(
             Query.query(
                 where("survey_uuid").`is`(surveyUuid))
@@ -42,15 +66,8 @@ class SurveyResponseService(
         .asFlow()
 
     suspend fun post(responses: Flow<SurveyResponse>) =
-        responses
-            .onEach { sender.emit(it) }
-                // map to "a SurveyResponseRow + a list of ChoiceResponseRows"
-            .map { it.asRelational() }
-                // it can only insert a row
-            .let {
-                r2dbcEntityTemplate.insert(it)
-                it.onEach {
-                    r2dbcEntityTemplate.insert(it.choiceResponses.asFlow())
-                }
+        responses.collect {
+                val brief = pf.createProjection(SurveyResponseBrief::class.java, it)
+                sender.emit(brief)
             }
 }

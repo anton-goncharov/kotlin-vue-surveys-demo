@@ -148,6 +148,7 @@ export default {
       this.formData = this.surveyQuestions // default value
       const apiCalls = [
         this.getSurveyByIdApi(this.surveyUuid),
+        // load existing survey response if already submitted
         this.findBySurveyForCurrentUserApi(this.surveyUuid)
       ];
       Promise.all(apiCalls).then(responses => {
@@ -264,8 +265,8 @@ export default {
         // for each choice response in survey response
         for (const choiceResponse of response.choiceResponses) {
           // find question
-          questions.filter(q => choiceResponse.question.uuid === q.uuid)
-              .forEach(q => q.choices.filter(c => choiceResponse.choice.uuid === c.uuid)
+          questions.filter(q => choiceResponse.question.id === q.uuid)
+              .forEach(q => q.choices.filter(c => choiceResponse.choice.id === c.uuid)
                   .forEach(c => c.val = true)
               )
         }

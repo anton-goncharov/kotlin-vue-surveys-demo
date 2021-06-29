@@ -6,7 +6,6 @@ import javax.persistence.*
 @Entity
 data class Question(
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.DETACH])
-    @JsonIgnore
     var survey: Survey? = null,
 
     var text: String,

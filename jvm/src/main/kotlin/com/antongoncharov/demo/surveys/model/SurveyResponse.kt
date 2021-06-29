@@ -10,7 +10,6 @@ import javax.persistence.*
 @Entity
 data class SurveyResponse(
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.DETACH])
-    @JsonIgnore
     var survey: Survey? = null,
 
     @ManyToOne
@@ -19,27 +18,28 @@ data class SurveyResponse(
     var submitted: Boolean = false,
     var submittedAt: Instant? = null,
 
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "survey_response_uuid")
     val choiceResponses: MutableList<ChoiceResponse> = mutableListOf()
 ): JpaPersistable(), UserOwned {
 
-    fun asRelational(): SurveyResponseRow {
-        val surveyResponseRow = SurveyResponseRow()
-        surveyResponseRow.uuid = this.uuid.toString()
-        surveyResponseRow.surveyUuid = this.survey?.uuid.toString()
-        surveyResponseRow.submittedAt = this.submittedAt
-        surveyResponseRow.createdDate = this.createdDate
-
-        for (choiceResponse in choiceResponses) {
-            val choiceResponseRow = ChoiceResponseRow()
-            choiceResponseRow.uuid = choiceResponse.uuid.toString()
-            choiceResponseRow.surveyResponseUuid = choiceResponse.surveyResponse?.uuid.toString()
-            choiceResponseRow.choiceUuid = choiceResponse.choice?.uuid.toString()
-            choiceResponseRow.questionUuid = choiceResponse.question?.uuid.toString()
-            surveyResponseRow.choiceResponses.add(choiceResponseRow)
-        }
-        return surveyResponseRow
-    }
+    // TODO remove if still not needed
+//    fun asRelational(): SurveyResponseRow {
+//        val surveyResponseRow = SurveyResponseRow()
+//        surveyResponseRow.uuid = this.uuid.toString()
+//        surveyResponseRow.surveyUuid = this.survey?.uuid.toString()
+//        surveyResponseRow.submittedAt = this.submittedAt
+//        surveyResponseRow.createdDate = this.createdDate
+//
+//        for (choiceResponse in choiceResponses) {
+//            val choiceResponseRow = ChoiceResponseRow()
+//            choiceResponseRow.uuid = choiceResponse.uuid.toString()
+//            choiceResponseRow.surveyResponseUuid = choiceResponse.surveyResponse?.uuid.toString()
+//            choiceResponseRow.choiceUuid = choiceResponse.choice?.uuid.toString()
+//            choiceResponseRow.questionUuid = choiceResponse.question?.uuid.toString()
+//            surveyResponseRow.choiceResponses.add(choiceResponseRow)
+//        }
+//        return surveyResponseRow
+//    }
 
 }
