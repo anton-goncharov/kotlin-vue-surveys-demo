@@ -5,7 +5,8 @@ export const userService = {
     login,
     logout,
     register,
-    getById
+    getById,
+    getAll
 };
 
 function login(email, password) {
@@ -52,4 +53,13 @@ function getById(id) {
     };
 
     return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/users/${id}`, requestOptions).then(handleResponse);
+}
+
+function getAll() {
+    const requestOptions = {
+        method: 'GET',
+        headers: authHeader()
+    };
+
+    return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/users`, requestOptions).then(handleResponse);
 }

@@ -6,7 +6,7 @@
       </div>
       <div class="h-25">
         <div class="col-md-12">
-          <a :href="`/surveys/${uuid}/stats`" class="badge badge-warning align-text-bottom">Stats</a>
+          <a v-show="isCoordinator()" :href="`/surveys/${uuid}/stats`" class="badge badge-warning align-text-bottom">Stats</a>
         </div>
       </div>
     </div>
@@ -14,8 +14,11 @@
 </template>
 
 <script>
+import rolesMixin from "@/components/mixins/rolesMixin";
+
 export default {
   name: 'SurveyCard',
+  mixins: [rolesMixin],
   props: {
     title: String,
     imageUrl: String,

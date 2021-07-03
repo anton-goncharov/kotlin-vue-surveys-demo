@@ -16,10 +16,11 @@ class SurveyResponseResource(val surveyResponseRxService: SurveyResponseRxServic
         surveyResponseRxService.post(inboundSurveyResponses)
 
     @MessageMapping("stream")
-    fun send(): Flow<SurveyResponseBrief> = surveyResponseRxService
+    fun send(surveyUuid: String): Flow<SurveyResponseBrief> = surveyResponseRxService
         .stream()
         .onStart {
-            emitAll(surveyResponseRxService.findAll())
+            emitAll(surveyResponseRxService.findAllSubmittedBySurveyUuid(surveyUuid))
         }
+    // TODO now it's single shared flow for all subscribers, use flow per subscription
 
 }

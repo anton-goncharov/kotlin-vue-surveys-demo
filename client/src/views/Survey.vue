@@ -18,15 +18,19 @@
               </div>
             </div>
           </div>
-          <div class="col-12">
+          <div class="col-12" v-show="isCoordinator()">
             <button class="btn btn-link pl-0" type="button" v-if="!isEditingTitle" v-on:click="isEditingTitle = true">Rename</button>
           </div>
         </div>
 
         <!-- Cover Image-->
-        <button v-if="!isEditingImage" class="btn btn-link pl-0" type="button" v-on:click="isEditingImage = true">Change Cover Image</button>
-        <button v-if="isEditingImage && hasImage" class="btn btn-link pl-0" type="button" v-on:click="saveSurveyImage">Save Cover Image</button>
-        <button v-if="isEditingImage" class="btn btn-link text-secondary pl-0" type="button" v-on:click="isEditingImage = false; hasImage = false;">Cancel Image Editing</button>
+          <!-- image controls -->
+        <div v-show="isCoordinator()">
+          <button v-if="!isEditingImage" class="btn btn-link pl-0" type="button" v-on:click="isEditingImage = true">Change Cover Image</button>
+          <button v-if="isEditingImage && hasImage" class="btn btn-link pl-0" type="button" v-on:click="saveSurveyImage">Save Cover Image</button>
+          <button v-if="isEditingImage" class="btn btn-link text-secondary pl-0" type="button" v-on:click="isEditingImage = false; hasImage = false;">Cancel Image Editing</button>
+        </div>
+          <!-- image itself -->
         <div v-if="!isEditingImage && survey.imageUrl" class="mt-2" style="width: 400px; height: 200px; background-size: cover;" v-bind:style="{ backgroundImage: 'url(\'' + this.$apiUrl + survey.imageUrl + '\')' }">
         </div>
         <image-uploader v-if="isEditingImage"
@@ -50,7 +54,7 @@
                 <div class="col-md-8">
                   <h5>{{ question.text }}</h5>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" v-show="isCoordinator()">
                   <button class="btn btn-link" type="button" v-on:click="$set(editing, question.uuid, true)">Edit</button>
                   <button class="btn btn-link text-danger" type="button" v-on:click="deleteQuestion(question.uuid)">Delete</button>
                 </div>
@@ -82,7 +86,7 @@
           </div>
 
         <!-- Add Question Form -->
-        <div class="row">
+        <div class="row" v-show="isCoordinator()">
           <button v-if="!isAddingNewQuestion"
                   class="btn btn-link mt-4" type="button"
                   v-on:click="isAddingNewQuestion = true">
@@ -95,7 +99,7 @@
         </div>
 
         <!-- Survey Controls -->
-        <div aria-label="Toolbar with button groups" class="btn-toolbar my-5" role="toolbar">
+        <div aria-label="button group" class="btn-toolbar mt-5" role="toolbar">
           <input class="btn btn-primary mr-2" value="Submit" type="submit"
                  @click.prevent="submitResponse(true)"
                  :disabled="isSurveySubmitted()">
@@ -103,7 +107,9 @@
                  @click.prevent="submitResponse(false)"
                  :disabled="isSurveySubmitted()">
           <button class="btn btn-light mr-2" type="button" v-on:click="close()">Close</button>
-          <button class="btn btn-outline-danger" type="button" v-on:click="deleteSurvey()">Delete Survey</button>
+        </div>
+        <div aria-label="button group" class="btn-toolbar mt-4" role="toolbar">
+          <button class="btn btn-outline-danger" type="button" v-show="isCoordinator()" v-on:click="deleteSurvey()">Delete Survey</button>
         </div>
       </form>
     </div>
@@ -123,10 +129,12 @@ import { mapState, mapActions } from 'vuex'
 import {router} from "@/router";
 import SurveyQuestionEdit from "@/components/SurveyQuestionEdit";
 import ImageUploader from 'vue-image-upload-resize'
+import rolesMixin from "@/components/mixins/rolesMixin";
 
 export default {
   name: 'Survey',
   components: {SurveyQuestionEdit, ImageUploader},
+  mixins: [rolesMixin],
   data: function() {
     return {
       isAddingNewQuestion: false,
@@ -165,7 +173,6 @@ export default {
   },
   computed: {
     ...mapState({
-      account: state => state.account,
       survey: state => state.surveys.selected.item,
       surveyQuestions: state => state.surveyQuestions.all.items,
       surveyResponse: state => state.surveyResponses.selected.item

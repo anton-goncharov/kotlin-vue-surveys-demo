@@ -10,7 +10,7 @@ const actions = {
 
         userService.getAll()
             .then(
-                users => commit('getAllSuccess', users),
+                response => commit('getAllSuccess', response.data._embedded.users),
                 error => commit('getAllFailure', error)
             );
     }

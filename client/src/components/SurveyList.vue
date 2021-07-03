@@ -1,7 +1,7 @@
 <template>
   <div v-if="surveys.items">
     <div class="page-header">
-      <h1>Surveys: All</h1>
+      <h1>Surveys<!--: All--></h1>
     </div>
 
     <!-- Pagination -->
@@ -49,9 +49,11 @@
 import {mapActions, mapState} from 'vuex'
 import SurveyCard from "@/components/SurveyCard";
 import {router} from "@/router";
+import rolesMixin from "@/components/mixins/rolesMixin";
 
 export default {
   name: 'SurveyList',
+  mixins: [rolesMixin],
   components: {
     SurveyCard
   },

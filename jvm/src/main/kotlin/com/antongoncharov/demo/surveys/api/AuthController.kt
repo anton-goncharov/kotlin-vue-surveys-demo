@@ -2,6 +2,7 @@ package com.antongoncharov.demo.surveys.api
 
 import com.antongoncharov.demo.surveys.logger
 import com.antongoncharov.demo.surveys.model.User
+import com.antongoncharov.demo.surveys.model.UserRole
 import com.antongoncharov.demo.surveys.model.dto.LoginRequest
 import com.antongoncharov.demo.surveys.model.dto.RegisterRequest
 import com.antongoncharov.demo.surveys.persistence.UserRepository
@@ -42,6 +43,7 @@ class AuthController (
         val user = User(
             name = request.name,
             email = request.email,
+            role = UserRole.RESPONDENT,
             password = passwordEncoder.encode(request.password)
         )
         val saved = userRepository.save(user)

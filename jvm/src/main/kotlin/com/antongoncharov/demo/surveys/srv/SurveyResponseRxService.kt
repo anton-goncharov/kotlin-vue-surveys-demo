@@ -35,7 +35,6 @@ class SurveyResponseRxService(
     /**
      * Returns all existing survey responses
      */
-    @Transactional
     suspend fun findAll(): Flow<SurveyResponseBrief> = r2dbcEntityTemplate
         .select(
             Query.empty().sort(by(desc("created_date"))),
@@ -51,17 +50,18 @@ class SurveyResponseRxService(
     /**
      * Returns all existing survey responses for the given survey uuid
      */
-    suspend fun findAllBySurveyUuid(surveyUuid: String): Flow<SurveyResponse> = r2dbcEntityTemplate
+    suspend fun findAllSubmittedBySurveyUuid(surveyUuid: String): Flow<SurveyResponseBrief> = r2dbcEntityTemplate
         .select(
             Query.query(
-                where("survey_uuid").`is`(surveyUuid))
+                where("survey_uuid").`is`(surveyUuid)
+                    .and("submitted").`is`(true)
+            )
                 .sort(by(desc("created_date"))),
             SurveyResponseRow::class.java
         )
         .map {
-            // TODO optimize number of subqueries
-            val surveyResponse = surveyResponseRepository.findById(UUID.fromString(it.uuid!!))
-            surveyResponse.get()
+            val brief = surveyResponseRepository.findBriefById(UUID.fromString(it.uuid!!))
+            brief
         }
         .asFlow()
 

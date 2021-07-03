@@ -31,7 +31,6 @@ import {mapActions, mapState} from "vuex";
 export default {
   name: 'Navbar',
   props: {
-    msg: String
   },
   computed: {
     ...mapState({
