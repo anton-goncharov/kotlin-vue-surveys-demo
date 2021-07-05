@@ -21,7 +21,6 @@ class SurveyResponseHandler(
 
     @HandleBeforeCreate
     fun handleBeforeCreate(surveyResponse: SurveyResponse) {
-        log.info("surveyResponse->survey ${surveyResponse.survey?.uuid}")
         // join selected choices
         // TODO optimize or eliminate
         for (choiceResponse in surveyResponse.choiceResponses) {
@@ -35,8 +34,6 @@ class SurveyResponseHandler(
         }
         // emit reactive flow
         runBlocking {
-            log.info("emit(${surveyResponse.uuid})")
-            log.info("survey (${surveyResponse.survey!!.uuid})")
             surveyResponseRxService.post(flow { emit(surveyResponse) })
         }
     }
