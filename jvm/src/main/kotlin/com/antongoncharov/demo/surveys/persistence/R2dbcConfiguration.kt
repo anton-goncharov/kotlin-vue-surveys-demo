@@ -10,13 +10,13 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 @Configuration
 class R2dbcConfiguration {
 
-    @Value("spring.datasource.url")
+    @Value("\${spring.datasource.url}")
     lateinit var dataSourceUrl: String
 
-    @Value("spring.datasource.username")
+    @Value("\${spring.datasource.username}")
     lateinit var dataSourceUsername: String
 
-    @Value("spring.datasource.password")
+    @Value("\${spring.datasource.password}")
     lateinit var dataSourcePassword: String
 
     @Bean
@@ -24,10 +24,7 @@ class R2dbcConfiguration {
         val connectionFactory =
             H2ConnectionFactory(
                 H2ConnectionConfiguration.builder()
-                    .url(dataSourceUrl)
-//            .file("~/surveys")
-//            .property("DB_CLOSE_DELAY", "-1")
-//            .property("DB_CLOSE_ON_EXIT", "FALSE")
+                    .url(dataSourceUrl.replace("jdbc:h2:","")) // it expects url w/o prefix
                     .username(dataSourceUsername)
                     .password(dataSourcePassword)
                     .build()

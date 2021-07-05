@@ -111,7 +111,6 @@ export function baseCrud(service, additions) {
             }
         },
         updateFailure(state, error) {
-            console.log("failure", error); // TODO delete before commit
             state.selected = { error, updating: false }
         },
         // --------- delete mutations
@@ -120,7 +119,6 @@ export function baseCrud(service, additions) {
         },
         deleteSuccess(state, uuid) {
             state.selected = { deleting: false }
-            console.log("state.all", state.all); // TODO delete before commit
             if (state.all && state.all.items) {
                 const index = state.all.items.findIndex(q => q.uuid === uuid)
                 state.all.items.splice(index, 1)

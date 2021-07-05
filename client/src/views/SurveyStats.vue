@@ -31,17 +31,6 @@
           </div>
         </div>
 
-<!--        TODO remove debug data when it's no longer needed -->
-        <div class="mt-4">
-          <div v-for="response in this.surveyResponses" :key="response.id" class="mt-4">
-<!--            <h4>Response</h4>-->
-<!--            <span>id = {{ response.id }}</span>-->
-<!--            <div v-for="choiceResponse in response.choiceResponses" :key="choiceResponse.id">-->
-<!--              <span>question {{ choiceResponse.question.id }} -> choice {{ choiceResponse.choice.id }}</span>-->
-<!--            </div>-->
-          </div>
-        </div>
-
         <!-- Survey Controls -->
         <div aria-label="Toolbar with button groups" class="btn-toolbar my-5" role="toolbar">
           <button class="btn btn-light mr-2" type="button" v-on:click="close()">Close</button>
@@ -148,7 +137,7 @@ export default {
     // RSOCKET
     openSurveyResponseStream() {
       // rsocket stuff
-      console.log("connecting with RSocket..."); // TODO remove
+      // console.log("connecting with RSocket..."); // debug
       const transport = new RSocketWebSocketClient(
           {
             url: `${process.env.VUE_APP_BACKEND_WS_URL}/rsocket`
@@ -175,9 +164,10 @@ export default {
           let requestedMsg = 10;
           let processedMsg = 0;
 
-          console.log("connected to rsocket"); // TODO remove
+          // console.log("connected to rsocket"); // debug
           const endpoint = "api.v1.survey-response.stream"
           socket.requestStream({
+            data: { 'surveyUuid': this.survey.uuid },
             metadata: String.fromCharCode(endpoint.length) + endpoint
           })
               .subscribe({
@@ -187,16 +177,14 @@ export default {
                   the client received the previously requested n messages
                 */
                 onSubscribe: (sub) => {
-                  console.log("subscribed to server stream"); // TODO remove
+                  // console.log("subscribed to server stream"); // debug
                   this.requestStreamSubscription = sub
                   this.requestStreamSubscription.request(requestedMsg)
                 },
                 onNext: (e) => {
-                  // console.log("next"); // TODO delete before commit
                   this.surveyResponses.push(e.data)
                   // handle incoming data, update series in the corresponding chart
                   this.addSurveyResponseToSeries(e.data)
-                  console.log("this.series", this.chartSeries); // TODO delete before commit
                   // count processed messages, when the buffer is full, request more from the socket
                   processedMsg++;
                   if (processedMsg >= requestedMsg) {
@@ -205,16 +193,16 @@ export default {
                   }
                 },
                 onError: error => {
-                  console.log("got error with requestStream"); // TODO remove
+                  // console.log("got error with requestStream"); // debug
                   console.error(error);
                 },
                 onComplete: () => {
-                  console.log("requestStream completed"); // TODO remove
+                  // console.log("requestStream completed"); // debug
                 }
               });
         },
         onError: error => {
-          console.log("got connection error"); // TODO remove
+          // console.log("got connection error"); // debug
           console.error(error);
         },
         // eslint-disable-next-line no-unused-vars

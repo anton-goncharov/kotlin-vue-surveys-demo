@@ -33,7 +33,6 @@ function getById(id) {
 }
 
 function create(survey) {
-    console.log("survey", survey); // TODO delete before commit
     const requestOptions = {
         method: 'POST',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },

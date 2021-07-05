@@ -1,0 +1,45 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    url: "jdbc:h2:mem:surveys;DB_CLOSE_DELAY=-1"
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+    initialization-mode: always
+    data: classpath:datatest.sql
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+# support liquibase-generated naming policies
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+#  data:
+#    r2dbc:
+#      repositories:
+#        enabled: false
+  rsocket:
+    server:
+      transport: websocket
+      mapping-path: /rsocket
+      port: 8082
+  liquibase:
+    enabled: false
+  mvc:
+    servlet:
+      path: "/api/v1"
+# -- is set dynamically either via IDE run variables or in the Dockerfile's 'run' params
+  web:
+    resources:
+      static-locations: "test/static/"
+
+jwt:
+  secret: "p2FpI17UQx3Z+RRyvFfigMUDGaBkhLgB30NXrbn/NANW2//u/eVzQwSFYxQEpZHeQ0audHPXyiRHiDER0oQqPGDGgvnaLJiJ3g/HuEo34hj/FmNh7LpR/1NFUiYtcOl0qAgfWZee+OtUCtpWnuxlS3BrybIvqqNmzQOMMGowN+aWeuE451J/CAGNXqwQLQkCXmpTG7HeOU4JJ6gRg9qvgEMSoJSIwg1I3eXgPA=="
+
+# -- is set dynamically either via IDE run variables or in the Dockerfile's 'run' params
+app:
+  imageStore:
+    path: "test/static/images"

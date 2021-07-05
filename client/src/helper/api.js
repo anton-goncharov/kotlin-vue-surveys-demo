@@ -12,7 +12,7 @@ export function handleResponse(response) {
             // const error = (data && data.message) || response.statusText;
             return Promise.reject(text);
         }
-        console.log("data", data); // TODO delete before commit
+        // console.log("data", data); // crude debug
         return {
             headers: response.headers,
             data: data

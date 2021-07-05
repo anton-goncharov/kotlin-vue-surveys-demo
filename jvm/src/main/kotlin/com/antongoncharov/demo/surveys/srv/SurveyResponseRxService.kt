@@ -7,6 +7,7 @@ import com.antongoncharov.demo.surveys.model.r2dbc.SurveyResponseRow
 import com.antongoncharov.demo.surveys.persistence.SurveyResponseRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
+import liquibase.pro.packaged.c
 import org.springframework.data.domain.Sort.Order.desc
 import org.springframework.data.domain.Sort.by
 import org.springframework.data.projection.ProjectionFactory
@@ -28,9 +29,13 @@ class SurveyResponseRxService(
     val log by logger()
     val pf: ProjectionFactory = SpelAwareProxyProjectionFactory()
 
-    val sender: MutableSharedFlow<SurveyResponseBrief> = MutableSharedFlow()
+    private val surveyFlows: MutableMap<String, MutableSharedFlow<SurveyResponseBrief>> = mutableMapOf()
 
-    fun stream(): Flow<SurveyResponseBrief> = sender
+//    val sender: MutableSharedFlow<SurveyResponseBrief> = MutableSharedFlow()
+
+    fun stream(surveyUuid: String): MutableSharedFlow<SurveyResponseBrief> {
+        return surveyFlows.getOrPut(surveyUuid, { MutableSharedFlow() })
+    }
 
     /**
      * Returns all existing survey responses
@@ -55,8 +60,7 @@ class SurveyResponseRxService(
             Query.query(
                 where("survey_uuid").`is`(surveyUuid)
                     .and("submitted").`is`(true)
-            )
-                .sort(by(desc("created_date"))),
+            ).sort(by(desc("created_date"))),
             SurveyResponseRow::class.java
         )
         .map {
@@ -67,7 +71,9 @@ class SurveyResponseRxService(
 
     suspend fun post(responses: Flow<SurveyResponse>) =
         responses.collect {
+                // TODO avoid '!!'
+                val surveyUuid = it.survey!!.uuid.toString()
                 val brief = pf.createProjection(SurveyResponseBrief::class.java, it)
-                sender.emit(brief)
+                stream(surveyUuid).emit(brief)
             }
 }

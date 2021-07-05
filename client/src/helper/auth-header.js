@@ -4,7 +4,6 @@
  */
 export function authHeader() {
     let token = localStorage.getItem('authToken');
-    console.log("authToken", token); // TODO delete before commit
     if (token) {
         return { 'Authorization': 'Bearer ' + token };
     } else {
