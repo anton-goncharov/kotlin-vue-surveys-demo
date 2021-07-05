@@ -23,11 +23,17 @@
           </div>
           <div>
             <apexchart v-if="chartSeries[qIndex]" :ref="'qChart'+qIndex"
-                width="500"
-                type="bar"
-                :options="chartOptions[qIndex]"
-                :series="chartSeries[qIndex]">
+                       width="500"
+                       type="bar"
+                       :options="chartOptions[qIndex]"
+                       :series="chartSeries[qIndex]">
             </apexchart>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div v-for="response in this.surveyResponses" :key="response.id" class="mt-4">
+            <!--     debug       -->
           </div>
         </div>
 
@@ -102,14 +108,14 @@ export default {
 
     this.getSurveyByIdApi(this.surveyUuid).then(survey => {
       this.initSurveyQuestions(survey.questions).then(() => {
-          // init charts
-          for (const index in survey.questions) {
-            this.chartOptions[index] = chartTemplate(survey, index)
-            this.responseCounter[index] = { total: 0, choices: new Array(survey.questions[index].choices.length).fill(0) }
-            this.chartSeries[index] = [{ data: [survey.questions[index].choices.length].fill(0) }]
-          }
-          // open stream
-          this.openSurveyResponseStream()
+        // init charts
+        for (const index in survey.questions) {
+          this.chartOptions[index] = chartTemplate(survey, index)
+          this.responseCounter[index] = { total: 0, choices: new Array(survey.questions[index].choices.length).fill(0) }
+          this.chartSeries[index] = [{ data: [survey.questions[index].choices.length].fill(0) }]
+        }
+        // open stream
+        this.openSurveyResponseStream()
       })
     })
   },
@@ -137,7 +143,6 @@ export default {
     // RSOCKET
     openSurveyResponseStream() {
       // rsocket stuff
-      // console.log("connecting with RSocket..."); // debug
       const transport = new RSocketWebSocketClient(
           {
             url: `${process.env.VUE_APP_BACKEND_WS_URL}/rsocket`
@@ -167,7 +172,7 @@ export default {
           // console.log("connected to rsocket"); // debug
           const endpoint = "api.v1.survey-response.stream"
           socket.requestStream({
-            data: { 'surveyUuid': this.survey.uuid },
+            data: {surveyUuid: this.survey.uuid},
             metadata: String.fromCharCode(endpoint.length) + endpoint
           })
               .subscribe({
@@ -177,7 +182,7 @@ export default {
                   the client received the previously requested n messages
                 */
                 onSubscribe: (sub) => {
-                  // console.log("subscribed to server stream"); // debug
+                  console.log("subscribed to server stream"); // debug
                   this.requestStreamSubscription = sub
                   this.requestStreamSubscription.request(requestedMsg)
                 },
@@ -185,6 +190,7 @@ export default {
                   this.surveyResponses.push(e.data)
                   // handle incoming data, update series in the corresponding chart
                   this.addSurveyResponseToSeries(e.data)
+                  console.log("next"); // TODO delete before commit
                   // count processed messages, when the buffer is full, request more from the socket
                   processedMsg++;
                   if (processedMsg >= requestedMsg) {

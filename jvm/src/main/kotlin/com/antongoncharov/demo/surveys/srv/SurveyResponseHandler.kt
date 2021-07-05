@@ -36,6 +36,7 @@ class SurveyResponseHandler(
         // emit reactive flow
         runBlocking {
             log.info("emit(${surveyResponse.uuid})")
+            log.info("survey (${surveyResponse.survey!!.uuid})")
             surveyResponseRxService.post(flow { emit(surveyResponse) })
         }
     }

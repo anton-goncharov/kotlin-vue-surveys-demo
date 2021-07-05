@@ -1,4 +1,4 @@
-# Surveys (Kotlin+Vue.js Fullstack Demo Application) 
+# Surveys (Kotlin+Spring+Vue.js Fullstack Demo) 
 
 ## Summary
 
@@ -10,37 +10,53 @@ The idea of application is to provide a platform for conducting surveys and havi
 
 - Surveys list
 
+![image / surveys list](readme/surveys-list.png)
+
 - Composing a survey
 
-- Respondent's survey view
+![image / editing survey (1/2) ](readme/editing-survey.png)
 
-- Reviewing real-time survey responses
+![image / editing survey (2/2) ](readme/editing-survey2.png)
+
+- Different views for Respondents and Coordinators
+
+![image / respondent's view ](readme/survey-resp-view.png)
+
+- Reviewing real-time survey responses statistics
+
+![image / real-time stats updates  ](readme/surveys.gif)
 
 ## Design
 
-It showcases the following concepts:
+It showcases the following list of concepts:
 
-#### Kotlin + Spring backend API development
+- #### Kotlin and Spring backend API development
 
 I've started using Kotlin on new backend projects 2 years ago, and it's my first repository to have boilerplate code for full-stack apps with Kotlin. Here I'm using Kotlin in pretty much the same Spring setup as I would use Java.      
 
-#### Rapid CRUD bootstrapping using Spring Data REST
+- #### Rapid CRUD bootstrapping using Spring Data REST
 
-It's arguable whether Spring Data REST is a good fit for a production-ready project. On the other hand, it allows to start quick having full-blown API implementation with sorting, paging and filtering for given entities.
+It's arguable whether Spring Data REST is a good fit for a production-ready project. On the other hand, it allows a rapid start having full-blown API implementation with sorting, paging and filtering for given entities.
 
-#### Database migrations with Liquibase
+Any given controller can be extended with additional handlers or reimplemented from scratch as a separate custom REST endpoint.  
 
-I used Hibernate JPA auto schema creation during the development. After I finalized the first version of the schema, I generated the Liquibase changelog from JPA entities and disabled ddl-auto by Hibernate.
+- #### Database migrations with Liquibase
 
-To populate schema with some initial data (predefined users)
+Hibernate JPA auto schema creation was used during the development. After the first version of the schema had been finalized, I generated the Liquibase changelog from JPA entities and disabled `ddl-auto` by Hibernate.
 
-#### Reactive flow for live data streaming
+To populate schema with some initial data (predefined users), there's sql script on classpath.
 
-After following the [official guide on Spring Webflux + RSocket](https://spring.io/guides/tutorials/spring-webflux-kotlin-rsocket/) I got an idea to implement some real-time streaming functionality to try Reactive Streams in such application setup. 
+- #### Security
 
-The survey stats page is implemented using rsocket.js, it reads the survey response stream data from a Kotlin Flow that is populated with data from R2dbc H2 reactive-ready driver. 
+JWT-based authentication with role-based access is showcased with tokens issued by the backend. Such a setup must not be used in production, this functionality is only to demonstrate the flow. In a real solution, use IAM solution like Keycloak or 3rd party SaaS.
 
-#### Building with Gradle
+- #### Reactive flow for live data streaming
+
+After reading the [official guide on Spring Webflux + RSocket](https://spring.io/guides/tutorials/spring-webflux-kotlin-rsocket/) I got an idea to implement some real-time streaming functionality to try Reactive Streams in a demo application setup. 
+
+The survey statistics page is implemented using rsocket.js, it reads the survey response stream data from a Kotlin Flow that is populated with data from R2dbc H2 reactive-ready driver. The charts are updated on a survey stats page in real time. 
+
+- #### Building with Gradle
 
 As a sidenote, I've never used Gradle before, always preferring Maven as a tool that makes more sense to me. This was an interesting challenge to create something new with Gradle, especially writing the build script with Kotlin DSL since there're not many ready-to-use examples.
 
@@ -51,7 +67,7 @@ As a sidenote, I've never used Gradle before, always preferring Maven as a tool 
 > - Filtering survey list
 > - Sample integration tests for the rsocket interactions
 
-### Backend Stack
+### The Backend Stack
 
 - Kotlin 1.4
 - Spring Boot 2.4.3
@@ -62,8 +78,9 @@ As a sidenote, I've never used Gradle before, always preferring Maven as a tool 
 - H2 Database
 - Liquibase (database migrations)
 - Gradle Build 
+- JUnit 5
 
-#### Frontend Stack
+### The Frontend Stack
 
 - Vue.js 2
 - Vuex  
@@ -82,7 +99,7 @@ Running in a command line
 ./gradlew bootRun
 ```
 
-Running in a container
+Running in a Docker container
 ```shell
 # build an image of 'surveys-backend'
 ./gradlew docker
@@ -103,8 +120,8 @@ It launches the web application at http://localhost:8080
 
 There're 2 predefined users:
 ```
-m.lin@surveys.com / !F85BVekCVM3uDKyty (role: coordinator)
-a.mcgill@surveys.com / 12345!abc (role: respondent)
+m.lin@surveys.com / !F85BVekCVM3uDKyty (role: Coordinator)
+a.mcgill@surveys.com / 12345!abc (role: Respondent)
 ```
 
 ## License
