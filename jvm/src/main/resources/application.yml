@@ -10,7 +10,7 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
 # support liquibase-generated naming policies
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -25,7 +25,7 @@ spring:
       mapping-path: /rsocket
       port: 8082
   liquibase:
-    enabled: true
+    enabled: false
   mvc:
     servlet:
       path: "/api/v1"

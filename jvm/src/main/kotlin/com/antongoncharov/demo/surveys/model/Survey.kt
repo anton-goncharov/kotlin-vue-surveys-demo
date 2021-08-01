@@ -14,6 +14,12 @@ data class Survey(
     @OneToMany(mappedBy = "survey", cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE], orphanRemoval = true)
     val questions: MutableList<Question> = mutableListOf(),
 
+    @ManyToMany
+    @JoinTable
+//        joinColumns = [JoinColumn(name = "id")],
+//        inverseJoinColumns = [JoinColumn(name = "id")])
+    val tags: MutableList<Tag> = mutableListOf(),
+
     @OneToMany(mappedBy = "survey", cascade = [CascadeType.REMOVE], orphanRemoval = true)
     val surveyResponses: MutableList<SurveyResponse> = mutableListOf()
 ): JpaPersistable(), UserOwned

@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-md-2">
-<!--      <sidebar v-on:filter-surveys="onFilterUpdate"/>-->
+      <sidebar v-on:filter-surveys="onFilterUpdate"/>
     </div>
     <div class="col-md-8">
       <survey-list />
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-// import Sidebar from '@/components/Sidebar.vue'
+import Sidebar from '@/components/Sidebar.vue'
 import SurveyList from '@/components/SurveyList.vue'
 import { mapState } from 'vuex'
 
@@ -22,7 +22,7 @@ export default {
     }
   },
   components: {
-    // Sidebar,
+    Sidebar,
     SurveyList
   },
   computed: {

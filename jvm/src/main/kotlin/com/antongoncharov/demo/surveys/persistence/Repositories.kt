@@ -1,12 +1,16 @@
 package com.antongoncharov.demo.surveys.persistence
 
 import com.antongoncharov.demo.surveys.model.*
+import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.PagingAndSortingRepository
+import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import org.springframework.data.rest.core.annotation.RestResource
-import org.springframework.security.access.annotation.Secured
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.security.access.prepost.PreAuthorize
+import java.time.Instant
 import java.util.*
 
 /**
@@ -20,7 +24,16 @@ interface UserRepository: PagingAndSortingRepository<User, UUID> {
 }
 
 @RepositoryRestResource(path = "surveys")
-interface SurveyRepository: PagingAndSortingRepository<Survey, UUID>, ProtectedRepository<Survey>
+interface SurveyRepository: PagingAndSortingRepository<Survey, UUID>, ProtectedRepository<Survey>, JpaSpecificationExecutor<Survey> {
+
+    @Query(value = "SELECT s FROM Survey s where s.createdDate BETWEEN :startDate AND :endDate")
+    fun getAllSurveysBetweenDates(
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Param("startDate") startDate: Instant,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Param("endDate") endDate: Instant
+    ): List<Survey>
+
+    override fun findAll(spec: Specification<Survey>?): MutableList<Survey>
+}
 
 @RepositoryRestResource(path = "questions")
 interface QuestionRepository: PagingAndSortingRepository<Question, UUID>, ProtectedRepository<Question>
