@@ -190,7 +190,6 @@ export default {
                   this.surveyResponses.push(e.data)
                   // handle incoming data, update series in the corresponding chart
                   this.addSurveyResponseToSeries(e.data)
-                  console.log("next"); // TODO delete before commit
                   // count processed messages, when the buffer is full, request more from the socket
                   processedMsg++;
                   if (processedMsg >= requestedMsg) {

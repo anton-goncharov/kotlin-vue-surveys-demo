@@ -3,9 +3,29 @@ import { baseCrud } from './base-crud.module';
 import {imageService} from "../service";
 
 const state = {
+    byTag: {},
+    all: {}
 };
 
 const actions = {
+    getAllByTag({ commit }, tag, page) {
+        // commit('getAllByTag')
+        surveyService.getAll({tag: tag}, page).then(
+            response =>
+                commit('getAllByTagSuccess', {
+                    tag: tag,
+                    pageable: response.data,
+                }),
+            error => commit('getAllFailure', error)
+        )
+    },
+    getAllUntagged({ commit }, page) {
+        // commit('getAllUntagged')
+        surveyService.getAll({tag: 'untagged'}, page).then(
+            response => commit('getAllUntaggedSuccess', response.data),
+            error => commit('getAllFailure', error)
+        )
+    },
     newSurvey({ commit }, callback) {
         surveyService.create({ title: "New Survey" })
             .then(
@@ -26,6 +46,14 @@ const actions = {
                 error => commit('surveyImageUploadFailure', error)
             );
     },
+    updateTags({ commit }, data) {
+        surveyService.updateTags(data.surveyUuid, data.tags)
+            .then(
+                // eslint-disable-next-line no-unused-vars
+                () => { commit('updateSuccess', data) },
+                error => commit('updateFailure', error)
+            );
+    },
     deleteQuestionById({ commit }, questionUuid) {
         surveyService.deleteQuestionById(questionUuid)
             .then(
@@ -37,6 +65,20 @@ const actions = {
 }
 
 const mutations = {
+    getAllByTagSuccess(state, data) {
+        if (data.pageable) {
+            state.byTag[data.tag] = {
+                items: data.pageable
+            }
+        }
+    },
+    getAllUntaggedSuccess(state, items) {
+        const embedded = items._embedded
+        state.untagged = {
+            items: embedded[Object.keys(embedded)[0]],
+            page: items.page
+        }
+    },
     newSurveySuccess(state, created) {
         state.selected = {}
         state.selected.item = created.data

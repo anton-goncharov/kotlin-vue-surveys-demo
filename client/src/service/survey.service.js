@@ -6,19 +6,29 @@ export const surveyService = {
     getById,
     create,
     update,
+    updateTags,
     deleteById
 };
 
-function getAll(page) {
+function getAll(params, page) {
     const requestOptions = {
         method: 'GET',
         headers: authHeader()
     };
 
-    return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys?` + new URLSearchParams({
-        size: uiConstants.ELEMENTS_ON_PAGE,
-        page: page || 0
-    }), requestOptions).then(handleResponse);
+    if (params) {
+        return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys/search?` + new URLSearchParams({
+            ...params,
+            size: uiConstants.ELEMENTS_ON_PAGE,
+            page: page || 0
+        }), requestOptions).then(handleResponse);
+    } else {
+        return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys?` + new URLSearchParams({
+            size: uiConstants.ELEMENTS_ON_PAGE,
+            page: page || 0
+        }), requestOptions).then(handleResponse);
+    }
+
 }
 
 function getById(id) {
@@ -50,6 +60,16 @@ function update(survey) {
     };
 
     return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys/${survey.uuid}`, requestOptions).then(handleResponse);
+}
+
+function updateTags(surveyUuid, tags) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { ...authHeader(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(tags)
+    };
+
+    return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys/${surveyUuid}/tags`, requestOptions).then(handleResponse);
 }
 
 function deleteById(id) {

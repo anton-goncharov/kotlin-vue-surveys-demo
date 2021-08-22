@@ -98,6 +98,9 @@
                                 @saved="saveQuestion" />
         </div>
 
+        <!-- Survey Tags -->
+        <survey-tags :survey-tags="cachedSurvey.tags" @saveTags="updateTags"/>
+
         <!-- Survey Controls -->
         <div aria-label="button group" class="btn-toolbar mt-5" role="toolbar">
           <input class="btn btn-primary mr-2" value="Submit" type="submit"
@@ -128,12 +131,14 @@
 import { mapState, mapActions } from 'vuex'
 import {router} from "@/router";
 import SurveyQuestionEdit from "@/components/SurveyQuestionEdit";
+import SurveyTags from "@/components/SurveyTags";
 import ImageUploader from 'vue-image-upload-resize'
 import rolesMixin from "@/components/mixins/rolesMixin";
 
 export default {
   name: 'Survey',
-  components: {SurveyQuestionEdit, ImageUploader},
+
+  components: {SurveyQuestionEdit, SurveyTags, ImageUploader},
   mixins: [rolesMixin],
   data: function() {
     return {
@@ -189,6 +194,7 @@ export default {
       getSurveyByIdApi: 'getById',
       createSurveyApi: 'create',
       updateSurveyApi: 'update',
+      updateSurveyTagsApi: 'updateTags',
       deleteSurveyApi: 'deleteById',
       setSurveyImageApi: 'setSurveyImage'
     }),
@@ -208,6 +214,10 @@ export default {
     // SURVEY
     updateTitle() {
       this.updateSurveyApi({ ...this.cachedSurvey, title: this.cachedSurvey.title })
+    },
+    updateTags(newTags) {
+      console.log("updating tags to", newTags); // TODO delete before commit
+      this.updateSurveyTagsApi({ surveyUuid: this.surveyUuid, tags: newTags })
     },
     deleteSurvey() {
       Promise.all([

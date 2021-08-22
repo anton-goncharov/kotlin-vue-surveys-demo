@@ -38,6 +38,9 @@ interface SurveyRepository: PagingAndSortingRepository<Survey, UUID>, ProtectedR
 @RepositoryRestResource(path = "questions")
 interface QuestionRepository: PagingAndSortingRepository<Question, UUID>, ProtectedRepository<Question>
 
+@RepositoryRestResource(path = "tags")
+interface TagRepository: PagingAndSortingRepository<Tag, UUID>
+
 @RepositoryRestResource(path = "choices", exported = false)
 interface ChoiceRepository: PagingAndSortingRepository<Choice, UUID>, ProtectedRepository<Choice>
 

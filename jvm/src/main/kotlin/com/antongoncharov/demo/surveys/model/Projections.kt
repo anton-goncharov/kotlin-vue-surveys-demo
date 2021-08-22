@@ -10,6 +10,7 @@ interface SurveyWithQuestions {
     val title: String
     val imageUrl: String?
     val active: Boolean
+    val tags: MutableList<Tag>
     val questions: MutableList<QuestionWithChoices>
 }
 
