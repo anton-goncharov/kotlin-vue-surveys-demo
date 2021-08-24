@@ -3,17 +3,18 @@ import { baseCrud } from './base-crud.module';
 import {imageService} from "../service";
 
 const state = {
-    byTag: {},
+    byTag: [],
     all: {}
 };
 
 const actions = {
-    getAllByTag({ commit }, tag, page) {
+    getAllByTag({ commit }, params, page) {
+        console.log("searchParams", params); // TODO delete before commit
         // commit('getAllByTag')
-        surveyService.getAll({tag: tag}, page).then(
+        surveyService.getAll({tag: params.tag, ...params.searchParams}, page).then(
             response =>
                 commit('getAllByTagSuccess', {
-                    tag: tag,
+                    tag: params.tag,
                     pageable: response.data,
                 }),
             error => commit('getAllFailure', error)
@@ -67,9 +68,10 @@ const actions = {
 const mutations = {
     getAllByTagSuccess(state, data) {
         if (data.pageable) {
-            state.byTag[data.tag] = {
+            state.byTag.push({
+                tag: data.tag,
                 items: data.pageable
-            }
+            })
         }
     },
     getAllUntaggedSuccess(state, items) {

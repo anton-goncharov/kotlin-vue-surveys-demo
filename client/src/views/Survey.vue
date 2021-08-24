@@ -99,7 +99,7 @@
         </div>
 
         <!-- Survey Tags -->
-        <survey-tags :survey-tags="cachedSurvey.tags" @saveTags="updateTags"/>
+        <survey-tags :survey-tags="cachedSurvey" @saveTags="updateTags"/>
 
         <!-- Survey Controls -->
         <div aria-label="button group" class="btn-toolbar mt-5" role="toolbar">
@@ -148,7 +148,10 @@ export default {
       hasImage: false,
       surveyImage: null,
       editing: {},
-      cachedSurvey: null, // TODO make all changes to cached copy
+      // TODO make all changes to cached copy
+      cachedSurvey: {
+        tags: []
+      },
       formData: []
     }
   },
@@ -159,21 +162,18 @@ export default {
     if (this.surveyUuid) {
       // if existing survey is opened
       this.formData = this.surveyQuestions // default value
-      const apiCalls = [
+      Promise.all([
         this.getSurveyByIdApi(this.surveyUuid),
-        // load existing survey response if already submitted
-        this.findBySurveyForCurrentUserApi(this.surveyUuid)
-      ];
-      Promise.all(apiCalls).then(responses => {
+        this.findBySurveyForCurrentUserApi(this.surveyUuid) // load existing survey response if it has already submitted
+      ]).then(responses => {
         const survey = responses[0]
         this.initSurveyQuestions(survey.questions)
-        // cache survey for draft form editing (user cancels and we should flush the model to initial state)
+        // cache survey for draft form editing (when user cancels -> we should flush the model to initial state)
         this.cachedSurvey = Object.assign({}, survey);
       })
     } else {
       // if new survey is created
       this.initNewSurvey()
-      this.initSurveyQuestions([])
     }
   },
   computed: {
@@ -216,7 +216,6 @@ export default {
       this.updateSurveyApi({ ...this.cachedSurvey, title: this.cachedSurvey.title })
     },
     updateTags(newTags) {
-      console.log("updating tags to", newTags); // TODO delete before commit
       this.updateSurveyTagsApi({ surveyUuid: this.surveyUuid, tags: newTags })
     },
     deleteSurvey() {
@@ -240,6 +239,7 @@ export default {
         router.replace("/surveys/" + this.survey.uuid)
         this.flushCachedSurvey()
       })
+      this.initSurveyQuestions([])
     },
 
     // SURVEY IMAGE

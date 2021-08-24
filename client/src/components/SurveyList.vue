@@ -1,5 +1,5 @@
 <template>
-  <div v-if="surveysByTag">
+  <div v-if="tags">
     <div class="page-header">
       <h1>Surveys<!--: All--></h1>
     </div>
@@ -32,32 +32,29 @@
     <!-- List by tag -->
     <div>
       <!-- for each tag -->
-      <div v-for="tag in tags.items" :key="tag.uuid">
-        <h2>{{tag.name}}</h2>
+      <div v-for="data of surveysByTag" :key="data.tag">
+        <h2>{{ tags.items.find(t => (t.shortName === data.tag)).name }}</h2>
         <!-- list survey cards -->
-        <div v-if="surveysByTag[tag.shortName].items._embedded" class="row survey-card-list mb-5">
-          <div v-for="survey in surveysByTag[tag.shortName].items._embedded.surveys" :key="survey.uuid" class="col-md-3 my-2">
+        <div class="row survey-card-list mb-5">
+          <div v-for="survey in data.items._embedded.surveys" :key="survey.uuid" class="col-md-3 my-2">
             <survey-card :title="survey.title" :uuid="survey.uuid" :image-url="survey.imageUrl" v-on:click="openSurvey(survey.uuid)"/>
           </div>
         </div>
-        <h5 v-else class="text-secondary mt-3 mb-5">No items</h5>
+        <h5 v-if="!data.items || data.items.length === 0" class="text-secondary mt-3 mb-5">No items</h5>
       </div>
     </div>
 
     <!-- List untagged -->
-    <div v-if="surveysByTag['none'].items && surveysByTag['none'].items._embedded">
+    <div v-if="surveysUntagged && surveysUntagged.items._embedded.surveys.length > 0">
       <h2>Other</h2>
       <!-- list survey Card -->
       <div class="row survey-card-list mb-5">
-        <div v-for="survey in surveysByTag['none'].items._embedded.surveys" :key="survey.uuid" class="col-md-3 my-2">
+        <div v-for="survey in surveysUntagged.items._embedded.surveys" :key="survey.uuid" class="col-md-3 my-2">
           <survey-card :title="survey.title" :uuid="survey.uuid" :image-url="survey.imageUrl" v-on:click="openSurvey(survey.uuid)"/>
         </div>
       </div>
     </div>
 
-    <button class="btn btn-primary mb-4" type="button" v-on:click="newSurvey()">
-      Create Survey
-    </button>
   </div>
   <div v-else>
     <img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
@@ -76,19 +73,25 @@ export default {
   components: {
     SurveyCard
   },
-  created() {
-
-    for (let tag of ['new-noteworthy', 'education', 'none']) {
-      this.getAllSurveysByTag(tag);
+  data: function() {
+    return {
+      surveysSearchParams: {}
     }
-    // this.getAllSurveys();
-
+  },
+  created() {
     this.getAllTags()
+    for (let tag of ['new-noteworthy', 'education', 'none']) {
+      this.getAllSurveysByTag({
+        tag: tag,
+        searchParams: this.surveysSearchParams
+      });
+    }
   },
   computed: {
     ...mapState({
       surveys: state => state.surveys.all,
-      surveysByTag: state => state.surveys.byTag,
+      surveysByTag: state => state.surveys.byTag.filter(item => item.tag !== 'none'),
+      surveysUntagged: state => state.surveys.byTag.find(item => item.tag === 'none'),
       tags: state => state.tags.all
     })
   },
@@ -101,9 +104,6 @@ export default {
     ...mapActions('tags', {
       getAllTags: 'getAll'
     }),
-    newSurvey: () => {
-      router.push('/surveys/new');
-    },
     openSurvey: (uuid) => {
       router.push('/surveys/' + uuid);
     }
@@ -115,6 +115,16 @@ export default {
 <style scoped>
 .page-header {
   margin-bottom: 30px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .5s
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0
 }
 
 </style>

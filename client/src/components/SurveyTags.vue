@@ -47,6 +47,7 @@ export default {
       getAllTags: 'getAll'
     }),
     update(newTags) {
+      // TODO fix adding tags to a new survey
       this.inputTags = newTags;
       const tagUuids = newTags.map(tagName => this.tags.items.find(tag => tag.name === tagName.text).uuid);
       this.$emit('saveTags', tagUuids);

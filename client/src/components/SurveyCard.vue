@@ -1,4 +1,5 @@
 <template>
+  <transition name="fade">
   <a :href="`/surveys/${uuid}`" class="nounderline">
     <div class="survey-card" :class="{ 'bg-dark' : !imageUrl }" :style="{ backgroundImage: imageUrl ? 'url(' + this.$apiUrl + imageUrl + ')' : 'none' }">
       <div class="h-75 p-3">
@@ -11,6 +12,7 @@
       </div>
     </div>
   </a>
+  </transition>
 </template>
 
 <script>
