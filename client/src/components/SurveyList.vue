@@ -1,7 +1,8 @@
 <template>
-  <div v-if="tags">
+  <div v-if="tags.items">
     <div class="page-header">
       <h1>Surveys<!--: All--></h1>
+<!--      <span>{{ searchQuery }}</span>-->
     </div>
 
     <!-- Pagination -->
@@ -35,17 +36,17 @@
       <div v-for="data of surveysByTag" :key="data.tag">
         <h2>{{ tags.items.find(t => (t.shortName === data.tag)).name }}</h2>
         <!-- list survey cards -->
-        <div class="row survey-card-list mb-5">
+        <div v-if="data.items._embedded" class="row survey-card-list mb-5">
           <div v-for="survey in data.items._embedded.surveys" :key="survey.uuid" class="col-md-3 my-2">
             <survey-card :title="survey.title" :uuid="survey.uuid" :image-url="survey.imageUrl" v-on:click="openSurvey(survey.uuid)"/>
           </div>
         </div>
-        <h5 v-if="!data.items || data.items.length === 0" class="text-secondary mt-3 mb-5">No items</h5>
+        <h5 v-if="!data.items._embedded || data.items._embedded.surveys.length === 0" class="text-secondary mt-3 mb-5">No items</h5>
       </div>
     </div>
 
     <!-- List untagged -->
-    <div v-if="surveysUntagged && surveysUntagged.items._embedded.surveys.length > 0">
+    <div v-if="surveysUntagged && surveysUntagged.items._embedded">
       <h2>Other</h2>
       <!-- list survey Card -->
       <div class="row survey-card-list mb-5">
@@ -75,23 +76,27 @@ export default {
   },
   data: function() {
     return {
+      tagsToShow: ['new-noteworthy', 'education', 'none'],
       surveysSearchParams: {}
     }
   },
   created() {
-    this.getAllTags()
-    for (let tag of ['new-noteworthy', 'education', 'none']) {
-      this.getAllSurveysByTag({
-        tag: tag,
-        searchParams: this.surveysSearchParams
-      });
+    console.log("surveysQuery", this.searchQuery); // TODO delete before commit
+    this.getAllTags();
+    this.listSurveys();
+  },
+  watch: {
+    searchQuery: function() {
+      this.listSurveys();
     }
   },
   computed: {
     ...mapState({
       surveys: state => state.surveys.all,
-      surveysByTag: state => state.surveys.byTag.filter(item => item.tag !== 'none'),
+      surveysByTag: state => state.surveys.byTag.filter(item => item.tag !== 'none')
+                                                .sort((a,b) => a.order - b.order),
       surveysUntagged: state => state.surveys.byTag.find(item => item.tag === 'none'),
+      searchQuery: state => state.surveys.searchQuery,
       tags: state => state.tags.all
     })
   },
@@ -104,10 +109,22 @@ export default {
     ...mapActions('tags', {
       getAllTags: 'getAll'
     }),
+    listSurveys: function() {
+      for (let i = 0; i < this.tagsToShow.length; i++){
+        let tag = this.tagsToShow[i];
+        console.log("getAllSurveysByTag", tag); // TODO delete before commit
+        this.getAllSurveysByTag({
+          tag: tag,
+          order: i
+          // searchParams: this.surveysQuery
+        });
+      }
+    },
     openSurvey: (uuid) => {
       router.push('/surveys/' + uuid);
     }
-  }
+  },
+
 }
 </script>
 

@@ -50,6 +50,8 @@ export default {
   created() {
     this.timeSelector = this.timeQuery || this.timeSelector
     this.statusSelector = this.timeQuery || this.statusSelector
+
+    // TODO load counts
   },
   methods: {
     isTimeSelected(filterValue) {

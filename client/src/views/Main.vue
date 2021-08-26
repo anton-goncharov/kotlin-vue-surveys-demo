@@ -12,7 +12,7 @@
 <script>
 import Sidebar from '@/components/Sidebar.vue'
 import SurveyList from '@/components/SurveyList.vue'
-import { mapState } from 'vuex'
+import {mapActions, mapState} from 'vuex'
 
 export default {
   name: 'Main',
@@ -31,20 +31,16 @@ export default {
     })
   },
   methods: {
+    ...mapActions('surveys', {
+      setSearchQuery: 'setSearchQuery',
+    }),
     onFilterUpdate(condition) {
-      console.log("conditions", condition);
-      this.surveysQuery = Object.assign(this.surveysQuery, condition)
-      console.log("this.surveysQuery", this.surveysQuery);
+      this.surveysQuery = { ...this.surveysQuery, ...condition }
+      this.setSearchQuery(this.surveysQuery)
     }
   }
 }
 </script>
 
 <style>
-/*#app {*/
-/*  font-family: Avenir, Helvetica, Arial, sans-serif;*/
-/*  -webkit-font-smoothing: antialiased;*/
-/*  -moz-osx-font-smoothing: grayscale;*/
-/*  color: #2c3e50;*/
-/*}*/
 </style>

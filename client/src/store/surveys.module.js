@@ -1,29 +1,25 @@
 import { surveyService } from '@/service';
+import { imageService } from '@/service';
 import { baseCrud } from './base-crud.module';
-import {imageService} from "../service";
 
 const state = {
     byTag: [],
-    all: {}
+    all: {},
+    searchQuery: {}
 };
 
 const actions = {
-    getAllByTag({ commit }, params, page) {
-        console.log("getAllByTag searchParams", params); // TODO delete before commit
-        // commit('getAllByTag')
-        surveyService.getAll({tag: params.tag, ...params.searchParams}, page).then(
+    setSearchQuery({ commit }, query) {
+        commit('setSearchQuery', query)
+    },
+    getAllByTag({ commit, state }, params, page) {
+        surveyService.getAll({tag: params.tag, ...state.searchQuery}, page).then(
             response =>
                 commit('getAllByTagSuccess', {
                     tag: params.tag,
+                    order: params.order,
                     pageable: response.data,
                 }),
-            error => commit('getAllFailure', error)
-        )
-    },
-    getAllUntagged({ commit }, page) {
-        // commit('getAllUntagged')
-        surveyService.getAll({tag: 'untagged'}, page).then(
-            response => commit('getAllUntaggedSuccess', response.data),
             error => commit('getAllFailure', error)
         )
     },
@@ -63,10 +59,20 @@ const actions = {
 }
 
 const mutations = {
+    setSearchQuery(state, query) {
+        state.searchQuery = query
+    },
     getAllByTagSuccess(state, data) {
+        // remove prev data
+        const toRemove = state.byTag.indexOf(state.byTag.find(bt => bt.tag === data.tag));
+        if (toRemove > -1) {
+            state.byTag.splice(toRemove, 1);
+        }
+        // push new array
         if (data.pageable) {
             state.byTag.push({
                 tag: data.tag,
+                order: data.order,
                 items: data.pageable
             })
         }
