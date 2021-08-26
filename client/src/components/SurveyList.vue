@@ -76,7 +76,7 @@ export default {
   },
   data: function() {
     return {
-      tagsToShow: ['new-noteworthy', 'education', 'none'],
+      tagsToShow: ['new-noteworthy', 'education', 'none'],  // TODO get it from user preferences
       surveysSearchParams: {}
     }
   },
