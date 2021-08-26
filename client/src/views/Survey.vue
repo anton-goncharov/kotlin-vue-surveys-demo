@@ -5,23 +5,10 @@
     <div v-if="this.survey && this.formData" class="col-lg-6 col-md-8 col-sm-10">
       <form class="container-fluid">
         <!-- Survey Title -->
-        <div class="row">
-          <div v-if="!isEditingTitle" class="col-md-auto">
-            <h3>{{ this.survey.title }} <span v-if="isSurveySubmitted()" class="badge badge-success">Completed</span></h3>
-          </div>
-          <div v-else class="col-md-auto btn-toolbar">
-            <input id="inlineFormInputGroup" v-model="cachedSurvey.title" class="form-control col-8" placeholder="Enter survey title here" type="text">
-            <div class="input-group-append col-4">
-              <div class="btn-group">
-                <button class="btn btn-outline-primary" type="button" v-on:click="isEditingTitle = false; updateTitle()" value="text">Save</button>
-                <button class="btn btn-outline-secondary" type="button" v-on:click="isEditingTitle = false; flushCachedSurvey()" value="text">Cancel</button>
-              </div>
-            </div>
-          </div>
-          <div class="col-12" v-show="isCoordinator()">
-            <button class="btn btn-link pl-0" type="button" v-if="!isEditingTitle" v-on:click="isEditingTitle = true">Rename</button>
-          </div>
-        </div>
+        <survey-title :cachedSurvey="cachedSurvey"
+                      :isSubmitted="isSurveySubmitted()"
+                      @save="updateSurvey"
+                      @reset="resetCachedSurvey"/>
 
         <!-- Cover Image-->
           <!-- image controls -->
@@ -99,7 +86,7 @@
         </div>
 
         <!-- Survey Tags -->
-        <survey-tags :survey-tags="cachedSurvey" @saveTags="updateTags"/>
+        <survey-tags :survey-tags="cachedSurvey.tags" @saveTags="updateTags"/>
 
         <!-- Survey Controls -->
         <div aria-label="button group" class="btn-toolbar mt-5" role="toolbar">
@@ -134,16 +121,16 @@ import SurveyQuestionEdit from "@/components/SurveyQuestionEdit";
 import SurveyTags from "@/components/SurveyTags";
 import ImageUploader from 'vue-image-upload-resize'
 import rolesMixin from "@/components/mixins/rolesMixin";
+import SurveyTitle from "@/components/SurveyTitle";
 
 export default {
   name: 'Survey',
 
-  components: {SurveyQuestionEdit, SurveyTags, ImageUploader},
+  components: {SurveyTitle, SurveyQuestionEdit, SurveyTags, ImageUploader},
   mixins: [rolesMixin],
   data: function() {
     return {
       isAddingNewQuestion: false,
-      isEditingTitle: false,
       isEditingImage: false,
       hasImage: false,
       surveyImage: null,
@@ -212,8 +199,8 @@ export default {
     }),
 
     // SURVEY
-    updateTitle() {
-      this.updateSurveyApi({ ...this.cachedSurvey, title: this.cachedSurvey.title })
+    updateSurvey(updated) {
+      this.updateSurveyApi({ ...this.cachedSurvey, ...updated })
     },
     updateTags(newTags) {
       this.updateSurveyTagsApi({ surveyUuid: this.surveyUuid, tags: newTags })
@@ -226,7 +213,7 @@ export default {
           () => router.push('/')
       )
     },
-    flushCachedSurvey() {
+    resetCachedSurvey() {
       this.cachedSurvey = Object.assign({}, this.survey);
     },
     close() {
@@ -235,10 +222,12 @@ export default {
       )
     },
     initNewSurvey() {
-      this.newSurveyApi(() => {
-        router.replace("/surveys/" + this.survey.uuid)
-        this.flushCachedSurvey()
-      })
+      this.newSurveyApi().then(
+          () => {
+            router.replace("/surveys/" + this.survey.uuid)
+            this.resetCachedSurvey()
+          }
+      )
       this.initSurveyQuestions([])
     },
 

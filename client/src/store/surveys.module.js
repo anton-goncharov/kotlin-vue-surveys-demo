@@ -9,7 +9,7 @@ const state = {
 
 const actions = {
     getAllByTag({ commit }, params, page) {
-        console.log("searchParams", params); // TODO delete before commit
+        console.log("getAllByTag searchParams", params); // TODO delete before commit
         // commit('getAllByTag')
         surveyService.getAll({tag: params.tag, ...params.searchParams}, page).then(
             response =>
@@ -27,13 +27,10 @@ const actions = {
             error => commit('getAllFailure', error)
         )
     },
-    newSurvey({ commit }, callback) {
-        surveyService.create({ title: "New Survey" })
+    newSurvey({ commit }) {
+        return surveyService.create({ title: "New Survey" })
             .then(
-                response => {
-                    commit('newSurveySuccess', response)
-                    callback()
-                },
+                response => commit('newSurveySuccess', response),
                 error => commit('newSurveyFailure', error)
             );
     },
@@ -84,7 +81,15 @@ const mutations = {
     newSurveySuccess(state, created) {
         state.selected = {}
         state.selected.item = created.data
-        state.all.items.push(created.data)
+        if (state.all && state.all.items) {
+            state.all.items.push(created.data)
+        }
+        if (state.byTag) {
+            const untagged = state.byTag.find(bt => bt.tag === 'none')
+            if (untagged) {
+                untagged.items._embedded.surveys.push(created.data)
+            }
+        }
     },
     newSurveyFailure() {
         // TODO redirect back to main page with some error alert

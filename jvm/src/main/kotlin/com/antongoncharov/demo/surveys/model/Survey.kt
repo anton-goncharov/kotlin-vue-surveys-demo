@@ -1,6 +1,7 @@
 package com.antongoncharov.demo.surveys.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import javax.persistence.*
 
 @Entity
@@ -17,6 +18,7 @@ data class Survey(
     @JsonIgnore
     val questions: MutableList<Question> = mutableListOf(),
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @ManyToMany
     @JoinTable
     val tags: MutableList<Tag> = mutableListOf(),

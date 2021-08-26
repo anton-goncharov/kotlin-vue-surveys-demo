@@ -31,7 +31,9 @@ export default {
   created() {
     this.getAllTags()
     // populate list of existing tags for this survey
-    this.inputTags = this.surveyTags.map( tag => tag.name )
+    if (this.surveyTags) {
+      this.inputTags = this.surveyTags.map( tag => tag.name )
+    }
   },
   computed: {
     ...mapState({
