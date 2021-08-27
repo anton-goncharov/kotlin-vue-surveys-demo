@@ -3,28 +3,34 @@
     <div class="row">
       <h5 class="w-100">Time Period</h5>
       <ul class="nav nav-pills">
-        <li class="nav-item pr-3">
-          <survey-filter :display-label="'Today'" :filter-value="'today'" :is-selected="isTimeSelected" :on-click="setTimeQuery" />
+        <li class="nav-item pr-3 w-100">
+          <survey-filter :display-label="'Today'" :filter-key="'time'" :filter-value="'today'" :is-selected="isTimeSelected"
+                         :on-click="setTimeQuery"/>
         </li>
-        <li class="nav-item pr-3">
-          <survey-filter :display-label="'Last Week'" :filter-value="'week'" :is-selected="isTimeSelected" :on-click="setTimeQuery" />
+        <li class="nav-item pr-3 w-100">
+          <survey-filter :display-label="'Last Week'" :filter-key="'time'" :filter-value="'week'" :is-selected="isTimeSelected"
+                         :on-click="setTimeQuery"/>
         </li>
-        <li class="nav-item pr-3">
-          <survey-filter :display-label="'All Time'" :filter-value="'all'" :is-selected="isTimeSelected" :on-click="setTimeQuery" />
+        <li class="nav-item pr-3 w-100">
+          <survey-filter :display-label="'All Time'" :filter-key="'time'" :filter-value="'all'" :is-selected="isTimeSelected"
+                         :on-click="setTimeQuery"/>
         </li>
       </ul>
     </div>
     <div class="row my-4">
       <h5 class="w-100">Status</h5>
       <ul class="nav nav-pills">
-        <li class="nav-item pr-3">
-          <survey-filter :display-label="'Completed'" :filter-value="'completed'" :is-selected="isStatusSelected" :on-click="setStatusQuery" />
+        <li class="nav-item pr-3 w-100">
+          <survey-filter :display-label="'Completed'" :filter-key="'status'" :filter-value="'completed'" :is-selected="isStatusSelected"
+                         :on-click="setStatusQuery"/>
         </li>
-        <li class="nav-item pr-3">
-          <survey-filter :display-label="'Incomplete'" :filter-value="'incomplete'" :is-selected="isStatusSelected" :on-click="setStatusQuery" />
+        <li class="nav-item pr-3 w-100">
+          <survey-filter :display-label="'Incomplete'" :filter-key="'status'" :filter-value="'incomplete'" :is-selected="isStatusSelected"
+                         :on-click="setStatusQuery"/>
         </li>
-        <li class="nav-item pr-3">
-          <survey-filter :display-label="'All'" :filter-value="'all'" :is-selected="isStatusSelected" :on-click="setStatusQuery" />
+        <li class="nav-item pr-3 w-100">
+          <survey-filter :display-label="'All'" :filter-key="'status'" :filter-value="'all'" :is-selected="isStatusSelected"
+                         :on-click="setStatusQuery"/>
         </li>
       </ul>
     </div>
@@ -41,7 +47,7 @@ export default {
     timeQuery: String,
     statusQuery: String
   },
-  data: function() {
+  data: function () {
     return {
       timeSelector: 'all',
       statusSelector: 'all'
@@ -50,8 +56,6 @@ export default {
   created() {
     this.timeSelector = this.timeQuery || this.timeSelector
     this.statusSelector = this.timeQuery || this.statusSelector
-
-    // TODO load counts
   },
   methods: {
     isTimeSelected(filterValue) {

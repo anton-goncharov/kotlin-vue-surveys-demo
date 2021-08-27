@@ -12,6 +12,13 @@ const actions = {
     setSearchQuery({ commit }, query) {
         commit('setSearchQuery', query)
     },
+    // eslint-disable-next-line no-unused-vars
+    count({ commit }, params) {
+        return surveyService.count(params).then(
+            response => response.headers.get('X-Total-Count') || '',
+            () => {} // error, whatever, it's just count
+        )
+    },
     getAllByTag({ commit, state }, params, page) {
         surveyService.getAll({tag: params.tag, ...state.searchQuery}, page).then(
             response =>

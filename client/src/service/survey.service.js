@@ -3,6 +3,7 @@ import {uiConstants} from "@/ui.constants";
 
 export const surveyService = {
     getAll,
+    count,
     getById,
     create,
     update,
@@ -28,7 +29,18 @@ function getAll(params, page) {
             page: page || 0
         }), requestOptions).then(handleResponse);
     }
+}
 
+function count(params, page) {
+    const requestOptions = {
+        method: 'GET',
+        headers: authHeader()
+    };
+    return fetch(`${process.env.VUE_APP_BACKEND_API_URL}/surveys/count?` + new URLSearchParams({
+        ...params,
+        size: uiConstants.ELEMENTS_ON_PAGE,
+        page: page || 0
+    }), requestOptions).then(handleResponse);
 }
 
 function getById(id) {

@@ -9,24 +9,35 @@
 
 <script>
 
+import {mapActions} from "vuex";
+
 export default {
   name: 'SurveyFilter',
   data: function() {
     return {
-      count: 42
+      count: ''
     }
   },
   props: {
     isSelected: Function,
+    filterKey: String,
     filterValue: String,
     displayLabel: String,
     onClick: Function
   },
   created() {
+    const params = {}
+    params[this.filterKey] = this.filterValue
+    this.countByParams(params).then(
+        (result) => this.count = result
+    )
   },
   computed: {
   },
   methods: {
+    ...mapActions('surveys', {
+      countByParams: 'count'
+    })
   }
 }
 </script>

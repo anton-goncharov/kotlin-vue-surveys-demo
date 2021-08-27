@@ -34,6 +34,17 @@ class SurveyController(
         return ResponseEntity.ok(pagedAssembler.toModel(result))
     }
 
+    @GetMapping("surveys/count")
+    @ResponseBody
+    fun count(@RequestParam searchParams: Map<String,String>,
+               pagedAssembler: PagedResourcesAssembler<Survey>,
+               pageable: Pageable): ResponseEntity<Any> {
+        log.info("GET /surveys/count, params: $searchParams")
+        val surveySpec = SurveySpec(searchParams)
+        val result = surveyRepository.count(surveySpec)
+        return ResponseEntity.ok().header("X-Total-Count", result.toString()).build()
+    }
+
     /**
      * Update survey tags (rewrites the list)
      */

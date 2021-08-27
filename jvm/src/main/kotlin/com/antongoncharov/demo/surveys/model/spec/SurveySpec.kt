@@ -3,6 +3,9 @@ package com.antongoncharov.demo.surveys.model.spec
 import com.antongoncharov.demo.surveys.model.Survey
 import com.antongoncharov.demo.surveys.model.SurveyResponse
 import com.antongoncharov.demo.surveys.model.Tag
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.PAGE
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.SIZE
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.SORT
 import com.antongoncharov.demo.surveys.security.RequestContext
 import org.springframework.data.jpa.domain.Specification
 import java.time.Instant
@@ -17,7 +20,7 @@ class SurveySpec(searchParams: Map<String, String>) : Specification<Survey> {
     private val searchCriteria = mutableListOf<SearchCriteria>()
 
     init {
-        val ignoreParams = arrayOf("page", "size", "sort")
+        val ignoreParams = arrayOf(PAGE, SIZE, SORT)
         searchParams.entries.filter { !ignoreParams.contains(it.key) }
                             .forEach {searchCriteria.add(SearchCriteria(it.key, it.value, SearchCriteria.SearchOperation.EQUAL)) }
     }
