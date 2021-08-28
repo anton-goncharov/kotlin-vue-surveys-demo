@@ -7,6 +7,7 @@ import Survey from "@/views/Survey";
 import Profile from "@/views/Profile";
 import UserManagement from "@/views/UserManagement";
 import SurveyStats from "../views/SurveyStats";
+import Preferences from "@/views/Preferences";
 
 Vue.use(VueRouter)
 
@@ -37,6 +38,11 @@ export const router = new VueRouter({
             path: "/user-management",
             name: "user-management",
             component: UserManagement
+        },
+        {
+            path: "/preferences",
+            name: "preferences",
+            component: Preferences
         },
         {
             path: "/surveys/new",

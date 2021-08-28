@@ -4,13 +4,20 @@ import com.antongoncharov.demo.surveys.model.Survey
 import com.antongoncharov.demo.surveys.model.SurveyResponse
 import com.antongoncharov.demo.surveys.model.Tag
 import com.antongoncharov.demo.surveys.model.spec.SearchConstants.PAGE
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.PARAM_STATUS_COMPLETED
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.PARAM_STATUS_INCOMPLETE
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.PARAM_TAG_UNTAGGED
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.PARAM_TIME_THIS_WEEK
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.PARAM_TIME_TODAY
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.SEARCH_SURVEY_PARAM_STATUS
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.SEARCH_SURVEY_PARAM_TAG
+import com.antongoncharov.demo.surveys.model.spec.SearchConstants.SEARCH_SURVEY_PARAM_TIME
 import com.antongoncharov.demo.surveys.model.spec.SearchConstants.SIZE
 import com.antongoncharov.demo.surveys.model.spec.SearchConstants.SORT
 import com.antongoncharov.demo.surveys.security.RequestContext
 import org.springframework.data.jpa.domain.Specification
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
 import java.util.*
 import javax.persistence.criteria.*
 
@@ -36,8 +43,8 @@ class SurveySpec(searchParams: Map<String, String>) : Specification<Survey> {
                 SearchCriteria.SearchOperation.EQUAL -> {
                     val key: String
                     when (criteria.key) {
-                        "tag" -> {
-                            if (criteria.value == "none") {
+                        SEARCH_SURVEY_PARAM_TAG -> {
+                            if (criteria.value == PARAM_TAG_UNTAGGED) {
                                 // search untagged
                                 predicates.add(cb.isEmpty(root.get("tags")));
                             } else {
@@ -45,16 +52,16 @@ class SurveySpec(searchParams: Map<String, String>) : Specification<Survey> {
                                 predicates.add(cb.equal(surveyTags.get<Any>("shortName"), criteria.value));
                             }
                         }
-                        "status" -> {
+                        SEARCH_SURVEY_PARAM_STATUS -> {
                             when (criteria.value) {
-                                "completed" -> {
+                                PARAM_STATUS_COMPLETED -> {
                                     val responsesJoin: Join<Survey, SurveyResponse> = root.join("surveyResponses", JoinType.INNER)
                                     predicates.add(cb.and(
                                         cb.equal(responsesJoin.get<Boolean>("submitted"), true),
                                         cb.equal(responsesJoin.get<Any>("user").get<UUID>("id"), RequestContext.user?.uuid),
                                     ))
                                 }
-                                "incomplete" -> {
+                                PARAM_STATUS_INCOMPLETE -> {
                                     val responsesJoin: Join<Survey, SurveyResponse> = root.join("surveyResponses", JoinType.LEFT)
                                     predicates.add(cb.or(
                                         cb.and(
@@ -69,15 +76,15 @@ class SurveySpec(searchParams: Map<String, String>) : Specification<Survey> {
                                 }
                             }
                         }
-                        "time" -> {
+                        SEARCH_SURVEY_PARAM_TIME -> {
                             when (criteria.value) {
-                                "today" -> {
+                                PARAM_TIME_TODAY -> {
                                     predicates.add(
                                         cb.between(root.get("createdDate"),
                                             Instant.now().minus(1, ChronoUnit.DAYS), Instant.now())
                                     )
                                 }
-                                "week" -> {
+                                PARAM_TIME_THIS_WEEK -> {
                                     predicates.add(
                                         cb.between(root.get("createdDate"),
                                             Instant.now().minus(7, ChronoUnit.DAYS), Instant.now())
