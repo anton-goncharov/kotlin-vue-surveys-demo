@@ -91,6 +91,7 @@ export default {
       this.$emit('saveTags', tagUuids);
     },
     beforeAdd(tagObject) {
+      console.log("before Add", tagObject); // TODO delete before commit
       if (!this.tags.items.find(tag => tag.name === tagObject.tag.text)) {
         this.showModal = true;
         this.tagToAdd = tagObject;
@@ -137,6 +138,6 @@ function tagStyle(name) {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .surveys-modal {
-  position: fixed;
+  position: absolute;
 }
 </style>

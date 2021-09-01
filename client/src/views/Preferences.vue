@@ -3,7 +3,7 @@
     <div class="col"></div>
     <div class="col-lg-6 col-md-8 col-sm-10">
       <h2>Preferences</h2>
-      <div v-if="preferences" class="mt-4">
+      <div v-if="preferences && tags" class="mt-4">
         <h4 class="my-3">Tags to display on the main page</h4>
         <draggable v-model="tagItems"
                    group="tagPreferences"
@@ -62,7 +62,7 @@ export default {
     ...mapState({
       account: state => state.account,
       tags: function(state) {
-        this.tagItems = state.tags.all.items
+        this.tagItems = state.tags.all.items.slice()
         const layout = state.preferences.all.items.mainPageLayout
         function findOrMax(shortName) {
           const pos = layout.findIndex(t => t.shortName === shortName)

@@ -67,7 +67,6 @@ import {mapActions, mapState} from 'vuex'
 import SurveyCard from "@/components/SurveyCard";
 import {router} from "@/router";
 import rolesMixin from "@/components/mixins/rolesMixin";
-import {preferences} from "@/store/preferences.module";
 
 export default {
   name: 'SurveyList',

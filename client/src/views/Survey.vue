@@ -98,7 +98,7 @@
                  :disabled="isSurveySubmitted()">
           <button class="btn btn-light mr-2" type="button" v-on:click="close()">Close</button>
         </div>
-        <div aria-label="button group" class="btn-toolbar mt-4" role="toolbar">
+        <div aria-label="button group" class="btn-toolbar my-4" role="toolbar">
           <button class="btn btn-outline-danger" type="button" v-show="isCoordinator()" v-on:click="deleteSurvey()">Delete Survey</button>
         </div>
       </form>

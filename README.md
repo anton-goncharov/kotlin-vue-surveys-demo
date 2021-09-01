@@ -8,15 +8,19 @@ This repository will evolve as I have time to add new features and optimize exis
 
 The idea of application is to provide a platform for conducting surveys and having simple real-time analytics for running polls. There're 2 kinds of actors: coordinators creating surveys, and respondents.
 
-- Surveys list
+- Surveys list with filters by date or status
 
-![image / surveys list](readme/surveys-list.png)
+![image / surveys list](readme/mainpage.png)
 
 - Composing a survey
 
 ![image / editing survey (1/2) ](readme/editing-survey.png)
 
 ![image / editing survey (2/2) ](readme/editing-survey2.png)
+
+- Tagging a survey
+
+![image / tagging survey ](readme/tags.png)
 
 - Different views for Respondents and Coordinators
 
@@ -25,6 +29,10 @@ The idea of application is to provide a platform for conducting surveys and havi
 - Reviewing real-time survey responses statistics
 
 ![image / real-time stats updates  ](readme/surveys.gif)
+
+- Updating user preferences
+
+![image / preferences ](readme/preferences.png)
 
 ## Design
 
