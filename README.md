@@ -1,4 +1,4 @@
-# Surveys (Kotlin+Spring+Vue.js Fullstack Demo) 
+# Surveys (Kotlin+Spring+Vue.js Fullstack Boilerplate / Demo) 
 
 ## Summary
 
