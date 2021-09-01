@@ -8,6 +8,7 @@ import { tags } from './tags.module';
 import { surveys } from './surveys.module';
 import { surveyQuestions } from './survey-questions.module';
 import { surveyResponses } from './survey-responses.module';
+import { preferences } from './preferences.module';
 
 Vue.use(Vuex);
 
@@ -16,6 +17,7 @@ export const store = new Vuex.Store({
         alert,
         account,
         tags,
+        preferences,
         surveys,
         surveyQuestions,
         surveyResponses,

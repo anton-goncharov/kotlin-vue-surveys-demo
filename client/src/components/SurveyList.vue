@@ -67,6 +67,7 @@ import {mapActions, mapState} from 'vuex'
 import SurveyCard from "@/components/SurveyCard";
 import {router} from "@/router";
 import rolesMixin from "@/components/mixins/rolesMixin";
+import {preferences} from "@/store/preferences.module";
 
 export default {
   name: 'SurveyList',
@@ -76,14 +77,21 @@ export default {
   },
   data: function() {
     return {
-      tagsToShow: ['new-noteworthy', 'education', 'none'],  // TODO get it from user preferences
+      tagsToShow: [],  // TODO get it from user preferences
       surveysSearchParams: {}
     }
   },
   created() {
-    console.log("surveysQuery", this.searchQuery); // TODO delete before commit
     this.getAllTags();
-    this.listSurveys();
+    this.getUserPreferences().then(
+        () => {
+          this.tagsToShow = this.preferences.mainPageLayout.map(tag => tag.shortName)
+          if (this.preferences.displayUntagged) {
+            this.tagsToShow.push('none')
+          }
+          this.listSurveys()
+        }
+    )
   },
   watch: {
     searchQuery: function() {
@@ -97,7 +105,8 @@ export default {
                                                 .sort((a,b) => a.order - b.order),
       surveysUntagged: state => state.surveys.byTag.find(item => item.tag === 'none'),
       searchQuery: state => state.surveys.searchQuery,
-      tags: state => state.tags.all
+      tags: state => state.tags.all,
+      preferences: state => state.preferences.all.items
     })
   },
   methods: {
@@ -109,14 +118,16 @@ export default {
     ...mapActions('tags', {
       getAllTags: 'getAll'
     }),
+    ...mapActions('preferences', {
+      getUserPreferences: 'getAll'
+    }),
     listSurveys: function() {
+      // TODO list according to user preferences
       for (let i = 0; i < this.tagsToShow.length; i++){
         let tag = this.tagsToShow[i];
-        console.log("getAllSurveysByTag", tag); // TODO delete before commit
         this.getAllSurveysByTag({
           tag: tag,
           order: i
-          // searchParams: this.surveysQuery
         });
       }
     },

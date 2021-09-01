@@ -21,6 +21,7 @@
     "vue-apexcharts": "^1.6.1",
     "vue-image-upload-resize": "^2.3.0",
     "vue-router": "^3.5.1",
+    "vuedraggable": "^2.24.3",
     "vuex": "^3.6.2"
   },
   "devDependencies": {

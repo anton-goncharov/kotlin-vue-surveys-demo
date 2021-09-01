@@ -39,7 +39,16 @@ interface SurveyRepository: PagingAndSortingRepository<Survey, UUID>, ProtectedR
 interface QuestionRepository: PagingAndSortingRepository<Question, UUID>, ProtectedRepository<Question>
 
 @RepositoryRestResource(path = "tags")
-interface TagRepository: PagingAndSortingRepository<Tag, UUID>
+interface TagRepository: PagingAndSortingRepository<Tag, UUID> {
+    fun findByShortName(shortName: String): Tag?
+    fun findByShortNameIn(shortName: List<String>): List<Tag>
+}
+
+@RepositoryRestResource(path = "preferences", exported = false)
+interface UserPreferencesRepository: PagingAndSortingRepository<UserPreferences, UUID> {
+    @Query("SELECT up FROM UserPreferences up WHERE up.user.id = :#{@requestContext.CurrentUser.user.id}")
+    fun findForCurrentUser(): UserPreferences?
+}
 
 @RepositoryRestResource(path = "choices", exported = false)
 interface ChoiceRepository: PagingAndSortingRepository<Choice, UUID>, ProtectedRepository<Choice>

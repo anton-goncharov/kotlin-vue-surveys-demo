@@ -8,8 +8,11 @@ export function baseCrud(service, additions) {
     const crudActions = {
         getAll({ commit }, page) {
             commit('getAllRequest')
-            service.getAll(page).then(
-                    response => commit('getAllSuccess', response.data),
+            return service.getAll(page).then(
+                    response => {
+                        commit('getAllSuccess', response.data)
+                        return response.data
+                    },
                     error => commit('getAllFailure', error)
                 )
         },
